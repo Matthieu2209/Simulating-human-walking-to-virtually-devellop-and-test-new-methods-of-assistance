@@ -8,7 +8,7 @@ The following 3 codes contain the functions to be used in Joint_forces to obtain
 Functions use for the Muscle actuation layer. Functions to compute vce and lce (integration) adn joint limits and functions to update lmtu and torque.
 
 ### Neural control layer : 
-Functions use for the neural control layer.
+Functions use for the neural control layer. Functions to compute the muscle stimulations.
 
 ### Useful function : 
 Functions useful
