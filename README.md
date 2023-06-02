@@ -5,10 +5,10 @@ Repository used by Matthieu AUSSEMS and Nicolas DINEUR for the development of th
 The following 3 codes contain the functions to be used in Joint_forces to obtain the torques to be applied to the joints.
  
 ### Muscle actuation layer : 
-Functions use for the Muscle actuation layer
+Functions use for the Muscle actuation layer. Functions to compute vce and lce (integration) adn joint limits and functions to update lmtu and torque.
 
 ### Neural control layer : 
-Functions use for the neural control layer
+Functions use for the neural control layer.
 
 ### Useful function : 
 Functions useful
