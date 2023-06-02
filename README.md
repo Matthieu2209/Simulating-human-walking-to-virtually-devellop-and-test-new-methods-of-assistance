@@ -11,7 +11,7 @@ Functions use for the Muscle actuation layer. Functions to compute vce and lce (
 Functions use for the neural control layer. Functions to compute the muscle stimulations.
 
 ### Useful function : 
-Functions useful
+Functions to compute the trunk angle, to obtained the gait phase and to compute the force of actuation of the inner thigh prismatic joint. The low pass filter used to pass from the stimulation to the activation is implemented in this file.  
 
 The following codes are used for validation of functions with exported signals from simulink in excel files:
 
