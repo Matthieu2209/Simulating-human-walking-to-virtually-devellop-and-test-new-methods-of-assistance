@@ -287,6 +287,35 @@
         <x3D>
           <x3D_points />
           <x3D_lines />
+          <x3D_shapes>
+            <box>
+              <name>New_Shape</name>
+              <position>
+                <x>-0.1</x>
+                <y>0.0</y>
+                <z>-0.015</z>
+              </position>
+              <scale>
+                <x>1.0</x>
+                <y>1.0</y>
+                <z>1.0</z>
+              </scale>
+              <rotation>
+                <x>0.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+              </rotation>
+              <color R="0" G="0" B="204" />
+              <specularColor R="255" G="255" B="255" />
+              <shininess>250.0</shininess>
+              <transparency>0.0</transparency>
+              <size>
+                <x>0.2</x>
+                <y>0.001</y>
+                <z>0.05</z>
+              </size>
+            </box>
+          </x3D_shapes>
         </x3D>
       </graphics>
     </body>
@@ -382,6 +411,35 @@
           <x3D_com />
           <x3D_points />
           <x3D_lines />
+          <x3D_shapes>
+            <box>
+              <name>New_Shape</name>
+              <position>
+                <x>0.25</x>
+                <y>0.0</y>
+                <z>0.0</z>
+              </position>
+              <scale>
+                <x>1.0</x>
+                <y>1.0</y>
+                <z>1.0</z>
+              </scale>
+              <rotation>
+                <x>0.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+              </rotation>
+              <color R="0" G="0" B="204" />
+              <specularColor R="255" G="255" B="255" />
+              <shininess>250.0</shininess>
+              <transparency>0.0</transparency>
+              <size>
+                <x>0.5</x>
+                <y>0.001</y>
+                <z>0.05</z>
+              </size>
+            </box>
+          </x3D_shapes>
         </x3D>
       </graphics>
     </body>
@@ -571,6 +629,35 @@
           <x3D_com />
           <x3D_points />
           <x3D_lines />
+          <x3D_shapes>
+            <box>
+              <name>New_Shape</name>
+              <position>
+                <x>0.15</x>
+                <y>0.0</y>
+                <z>0.0</z>
+              </position>
+              <scale>
+                <x>1.0</x>
+                <y>1.0</y>
+                <z>1.0</z>
+              </scale>
+              <rotation>
+                <x>0.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+              </rotation>
+              <color R="0" G="0" B="204" />
+              <specularColor R="255" G="255" B="255" />
+              <shininess>250.0</shininess>
+              <transparency>0.0</transparency>
+              <size>
+                <x>0.5</x>
+                <y>0.001</y>
+                <z>0.05</z>
+              </size>
+            </box>
+          </x3D_shapes>
         </x3D>
       </graphics>
     </body>
@@ -694,6 +781,35 @@
           <x3D_com />
           <x3D_points />
           <x3D_lines />
+          <x3D_shapes>
+            <box>
+              <name>New_Shape</name>
+              <position>
+                <x>0.4</x>
+                <y>0.0</y>
+                <z>0.0</z>
+              </position>
+              <scale>
+                <x>1.0</x>
+                <y>1.0</y>
+                <z>1.0</z>
+              </scale>
+              <rotation>
+                <x>0.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+              </rotation>
+              <color R="0" G="0" B="0" />
+              <specularColor R="255" G="255" B="255" />
+              <shininess>250.0</shininess>
+              <transparency>0.0</transparency>
+              <size>
+                <x>0.8</x>
+                <y>0.001</y>
+                <z>0.05</z>
+              </size>
+            </box>
+          </x3D_shapes>
         </x3D>
       </graphics>
     </body>
@@ -790,6 +906,35 @@
           <x3D_com />
           <x3D_points />
           <x3D_lines />
+          <x3D_shapes>
+            <box>
+              <name>New_Shape</name>
+              <position>
+                <x>0.25</x>
+                <y>-0.01</y>
+                <z>0.0</z>
+              </position>
+              <scale>
+                <x>1.0</x>
+                <y>1.0</y>
+                <z>1.0</z>
+              </scale>
+              <rotation>
+                <x>0.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+              </rotation>
+              <color R="255" G="0" B="0" />
+              <specularColor R="255" G="255" B="255" />
+              <shininess>250.0</shininess>
+              <transparency>0.0</transparency>
+              <size>
+                <x>0.5</x>
+                <y>0.001</y>
+                <z>0.05</z>
+              </size>
+            </box>
+          </x3D_shapes>
         </x3D>
       </graphics>
     </body>
@@ -979,6 +1124,35 @@
           <x3D_com />
           <x3D_points />
           <x3D_lines />
+          <x3D_shapes>
+            <box>
+              <name>New_Shape</name>
+              <position>
+                <x>-0.25</x>
+                <y>-0.01</y>
+                <z>0.0</z>
+              </position>
+              <scale>
+                <x>1.0</x>
+                <y>1.0</y>
+                <z>1.0</z>
+              </scale>
+              <rotation>
+                <x>0.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+              </rotation>
+              <color R="255" G="0" B="0" />
+              <specularColor R="255" G="255" B="255" />
+              <shininess>250.0</shininess>
+              <transparency>0.0</transparency>
+              <size>
+                <x>0.5</x>
+                <y>0.001</y>
+                <z>0.05</z>
+              </size>
+            </box>
+          </x3D_shapes>
         </x3D>
       </graphics>
     </body>
@@ -1131,6 +1305,35 @@
         </x2D>
         <x3D>
           <x3D_lines />
+          <x3D_shapes>
+            <box>
+              <name>New_Shape</name>
+              <position>
+                <x>0.06</x>
+                <y>0.0</y>
+                <z>-0.015</z>
+              </position>
+              <scale>
+                <x>1.0</x>
+                <y>1.0</y>
+                <z>1.0</z>
+              </scale>
+              <rotation>
+                <x>0.0</x>
+                <y>0.0</y>
+                <z>0.0</z>
+              </rotation>
+              <color R="255" G="0" B="0" />
+              <specularColor R="255" G="255" B="255" />
+              <shininess>250.0</shininess>
+              <transparency>0.0</transparency>
+              <size>
+                <x>0.2</x>
+                <y>0.001</y>
+                <z>0.05</z>
+              </size>
+            </box>
+          </x3D_shapes>
         </x3D>
       </graphics>
     </body>
@@ -1139,7 +1342,7 @@
     <hide_inertial_frame />
     <background>
       <!--This is the background properties-->
-      <color R="51" G="102" B="204" />
+      <color R="255" G="255" B="255" />
     </background>
     <shapeScaleFactors>
       <!--This is the scale factors-->
@@ -1159,7 +1362,7 @@
         <joint>base</joint>
         <position>
           <x>0.0</x>
-          <y>5.0</y>
+          <y>10.0</y>
           <z>0.0</z>
         </position>
         <target>
