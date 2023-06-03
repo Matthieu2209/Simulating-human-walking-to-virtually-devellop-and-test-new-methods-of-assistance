@@ -548,77 +548,91 @@ def user_JointForces(mbs_data, tsim):
             act_memory_TA_L = np.vstack([act_memory_TA_L,[A_TA_L,round(tsim,10)]])
             lmtc_memory_TA_L =np.vstack([lmtc_memory_TA_L,[lmtu_TA_L,round(tsim,10)]])
             lce_TA_L = muscle.integrateur2000(lce_prec_TA_L, dt, 5, lmtc_memory_TA_L[:,0], act_memory_TA_L[:,0], tsim-dt, TA,lmtc_memory_TA_L[:,1])
+            #lce_TA_L = muscle.Runge_kutta4(lce_prec_TA_L, dt, lmtc_memory_TA_L[:,0], act_memory_TA_L[:,0], tsim-dt, TA,lmtc_memory_TA_L[:,1])
             
             A_TA_R = u_f.low_filter(StimR[TA],tau,dt,A_prec_TA_R)
             act_memory_TA_R = np.vstack([act_memory_TA_R,[A_TA_R,round(tsim,10)]])
             lmtc_memory_TA_R =np.vstack([lmtc_memory_TA_R,[lmtu_TA_R,round(tsim,10)]])
             lce_TA_R = muscle.integrateur2000(lce_prec_TA_R, dt, 5, lmtc_memory_TA_R[:,0], act_memory_TA_R[:,0], tsim-dt, TA,lmtc_memory_TA_R[:,1])
+            #lce_TA_R = muscle.Runge_kutta4(lce_prec_TA_R, dt, lmtc_memory_TA_R[:,0], act_memory_TA_R[:,0], tsim-dt, TA,lmtc_memory_TA_R[:,1])
             
             #GAS
             A_GAS_L = u_f.low_filter(StimL[GAS],tau,dt,A_prec_GAS_L)
             act_memory_GAS_L = np.vstack([act_memory_GAS_L,[A_GAS_L,round(tsim,10)]])
             lmtc_memory_GAS_L =np.vstack([lmtc_memory_GAS_L,[lmtu_GAS_L,round(tsim,10)]])
             lce_GAS_L = muscle.integrateur2000(lce_prec_GAS_L, dt, 5, lmtc_memory_GAS_L[:,0], act_memory_GAS_L[:,0], tsim-dt, GAS,lmtc_memory_GAS_L[:,1])
+            #lce_GAS_L = muscle.Runge_kutta4(lce_prec_GAS_L, dt, lmtc_memory_GAS_L[:,0], act_memory_GAS_L[:,0], tsim-dt, GAS,lmtc_memory_GAS_L[:,1])
             
             A_GAS_R = u_f.low_filter(StimR[GAS],tau,dt,A_prec_GAS_R)
             act_memory_GAS_R = np.vstack([act_memory_GAS_R,[A_GAS_R,round(tsim,10)]])
             lmtc_memory_GAS_R =np.vstack([lmtc_memory_GAS_R,[lmtu_GAS_R,round(tsim,10)]])
             lce_GAS_R = muscle.integrateur2000(lce_prec_GAS_R, dt, 5, lmtc_memory_GAS_R[:,0], act_memory_GAS_R[:,0], tsim-dt, GAS,lmtc_memory_GAS_R[:,1])
+            #lce_GAS_R = muscle.Runge_kutta4(lce_prec_GAS_R, dt, lmtc_memory_GAS_R[:,0], act_memory_GAS_R[:,0], tsim-dt, GAS,lmtc_memory_GAS_R[:,1])
             
             #SOL
             A_SOL_L = u_f.low_filter(StimL[SOL],tau,dt,A_prec_SOL_L)
             act_memory_SOL_L = np.vstack([act_memory_SOL_L,[A_SOL_L,round(tsim,10)]])
             lmtc_memory_SOL_L =np.vstack([lmtc_memory_SOL_L,[lmtu_SOL_L,round(tsim,10)]])
             lce_SOL_L = muscle.integrateur2000(lce_prec_SOL_L, dt, 5, lmtc_memory_SOL_L[:,0], act_memory_SOL_L[:,0], tsim-dt, SOL,lmtc_memory_SOL_L[:,1])
+            #lce_SOL_L = muscle.Runge_kutta4(lce_prec_SOL_L, dt, lmtc_memory_SOL_L[:,0], act_memory_SOL_L[:,0], tsim-dt, SOL,lmtc_memory_SOL_L[:,1])
             
             A_SOL_R = u_f.low_filter(StimR[SOL],tau,dt,A_prec_SOL_R)
             act_memory_SOL_R = np.vstack([act_memory_SOL_R,[A_SOL_R,round(tsim,10)]])
             lmtc_memory_SOL_R =np.vstack([lmtc_memory_SOL_R,[lmtu_SOL_R,round(tsim,10)]])
             lce_SOL_R = muscle.integrateur2000(lce_prec_SOL_R, dt, 5, lmtc_memory_SOL_R[:,0], act_memory_SOL_R[:,0], tsim-dt, SOL,lmtc_memory_SOL_R[:,1])
+            #lce_SOL_R = muscle.Runge_kutta4(lce_prec_SOL_R, dt, lmtc_memory_SOL_R[:,0], act_memory_SOL_R[:,0], tsim-dt, SOL,lmtc_memory_SOL_R[:,1])
             
             #VAS
             A_VAS_L = u_f.low_filter(StimL[VAS],tau,dt,A_prec_VAS_L)
             act_memory_VAS_L = np.vstack([act_memory_VAS_L,[A_VAS_L,round(tsim,10)]])
             lmtc_memory_VAS_L =np.vstack([lmtc_memory_VAS_L,[lmtu_VAS_L,round(tsim,10)]])
             lce_VAS_L = muscle.integrateur2000(lce_prec_VAS_L, dt, 8, lmtc_memory_VAS_L[:,0], act_memory_VAS_L[:,0], tsim-dt, VAS,lmtc_memory_VAS_L[:,1])
+            #lce_VAS_L = muscle.Runge_kutta4(lce_prec_VAS_L, dt, lmtc_memory_VAS_L[:,0], act_memory_VAS_L[:,0], tsim-dt, VAS,lmtc_memory_VAS_L[:,1])
             
             A_VAS_R = u_f.low_filter(StimR[VAS],tau,dt,A_prec_VAS_R)
             act_memory_VAS_R = np.vstack([act_memory_VAS_R,[A_VAS_R,round(tsim,10)]])
             lmtc_memory_VAS_R =np.vstack([lmtc_memory_VAS_R,[lmtu_VAS_R,round(tsim,10)]])
             lce_VAS_R = muscle.integrateur2000(lce_prec_VAS_R, dt, 5, lmtc_memory_VAS_R[:,0], act_memory_VAS_R[:,0], tsim-dt, VAS,lmtc_memory_VAS_R[:,1])
+            #lce_VAS_R = muscle.Runge_kutta4(lce_prec_VAS_R, dt, lmtc_memory_VAS_R[:,0], act_memory_VAS_R[:,0], tsim-dt, VAS,lmtc_memory_VAS_R[:,1])
             
             #HAM
             A_HAM_L = u_f.low_filter(StimL[HAM],tau,dt,A_prec_HAM_L)
             act_memory_HAM_L = np.vstack([act_memory_HAM_L,[A_HAM_L,round(tsim,10)]])
             lmtc_memory_HAM_L =np.vstack([lmtc_memory_HAM_L,[lmtu_HAM_L,round(tsim,10)]])
             lce_HAM_L = muscle.integrateur2000(lce_prec_HAM_L, dt, 5, lmtc_memory_HAM_L[:,0], act_memory_HAM_L[:,0], tsim-dt, HAM,lmtc_memory_HAM_L[:,1])
+            #lce_HAM_L = muscle.Runge_kutta4(lce_prec_HAM_L, dt, lmtc_memory_HAM_L[:,0], act_memory_HAM_L[:,0], tsim-dt, HAM,lmtc_memory_HAM_L[:,1])
             
             A_HAM_R = u_f.low_filter(StimR[HAM],tau,dt,A_prec_HAM_R)
             act_memory_HAM_R = np.vstack([act_memory_HAM_R,[A_HAM_R,round(tsim,10)]])
             lmtc_memory_HAM_R =np.vstack([lmtc_memory_HAM_R,[lmtu_HAM_R,round(tsim,10)]])
             lce_HAM_R = muscle.integrateur2000(lce_prec_HAM_R, dt, 5, lmtc_memory_HAM_R[:,0], act_memory_HAM_R[:,0], tsim-dt, HAM,lmtc_memory_HAM_R[:,1])
+            #lce_HAM_R = muscle.Runge_kutta4(lce_prec_HAM_R, dt, lmtc_memory_HAM_R[:,0], act_memory_HAM_R[:,0], tsim-dt, HAM,lmtc_memory_HAM_R[:,1])
             
             #GLU
             A_GLU_L = u_f.low_filter(StimL[GLU],tau,dt,A_prec_GLU_L)
             act_memory_GLU_L = np.vstack([act_memory_GLU_L,[A_GLU_L,round(tsim,10)]])
             lmtc_memory_GLU_L =np.vstack([lmtc_memory_GLU_L,[lmtu_GLU_L,round(tsim,10)]])
             lce_GLU_L = muscle.integrateur2000(lce_prec_GLU_L, dt, 5, lmtc_memory_GLU_L[:,0], act_memory_GLU_L[:,0], tsim-dt, GLU,lmtc_memory_GLU_L[:,1])
+            #lce_GLU_L = muscle.Runge_kutta4(lce_prec_GLU_L, dt, lmtc_memory_GLU_L[:,0], act_memory_GLU_L[:,0], tsim-dt, GLU,lmtc_memory_GLU_L[:,1])
             
             A_GLU_R = u_f.low_filter(StimR[GLU],tau,dt,A_prec_GLU_R)
             act_memory_GLU_R = np.vstack([act_memory_GLU_R,[A_GLU_R,round(tsim,10)]])
             lmtc_memory_GLU_R =np.vstack([lmtc_memory_GLU_R,[lmtu_GLU_R,round(tsim,10)]])
             lce_GLU_R = muscle.integrateur2000(lce_prec_GLU_R, dt, 5, lmtc_memory_GLU_R[:,0], act_memory_GLU_R[:,0], tsim-dt, GLU,lmtc_memory_GLU_R[:,1])
+            #lce_GLU_R = muscle.Runge_kutta4(lce_prec_GLU_R, dt, lmtc_memory_GLU_R[:,0], act_memory_GLU_R[:,0], tsim-dt, GLU,lmtc_memory_GLU_R[:,1])
             
             #HFL
             A_HFL_L = u_f.low_filter(StimL[HFL],tau,dt,A_prec_HFL_L)
             act_memory_HFL_L = np.vstack([act_memory_HFL_L,[A_HFL_L,round(tsim,10)]])
             lmtc_memory_HFL_L =np.vstack([lmtc_memory_HFL_L,[lmtu_HFL_L,round(tsim,10)]])
             lce_HFL_L = muscle.integrateur2000(lce_prec_HFL_L, dt, 5, lmtc_memory_HFL_L[:,0], act_memory_HFL_L[:,0], tsim-dt, HFL,lmtc_memory_HFL_L[:,1])
+            #lce_HFL_L = muscle.Runge_kutta4(lce_prec_HFL_L, dt, lmtc_memory_HFL_L[:,0], act_memory_HFL_L[:,0], tsim-dt, HFL,lmtc_memory_HFL_L[:,1])
             
             A_HFL_R = u_f.low_filter(StimR[HFL],tau,dt,A_prec_HFL_R)
             act_memory_HFL_R = np.vstack([act_memory_HFL_R,[A_HFL_R,round(tsim,10)]])
             lmtc_memory_HFL_R =np.vstack([lmtc_memory_HFL_R,[lmtu_HFL_R,round(tsim,10)]])
             lce_HFL_R = muscle.integrateur2000(lce_prec_HFL_R, dt, 5, lmtc_memory_HFL_R[:,0], act_memory_HFL_R[:,0], tsim-dt, HFL,lmtc_memory_HFL_R[:,1])
+            #lce_HFL_R = muscle.Runge_kutta4(lce_prec_HFL_R, dt, lmtc_memory_HFL_R[:,0], act_memory_HFL_R[:,0], tsim-dt, HFL,lmtc_memory_HFL_R[:,1])
             
         else :
             
