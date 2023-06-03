@@ -179,6 +179,26 @@ def integrateur2000(x0,dt,N_iter,l_mtc_memory,l_act_memory,tsim,muscle,time_vect
         
     return lce_curr
 
+def Runge_kutta4(x0,dt,l_mtc_memory,l_act_memory,tsim,muscle,time_vector):
+    
+    Act_1 = interpol(time_vector, l_act_memory , tsim)
+    lmtc_1 = interpol(time_vector, l_mtc_memory, tsim)
+    Act_2 = interpol(time_vector, l_act_memory , tsim+dt/2)
+    lmtc_2 = interpol(time_vector, l_mtc_memory, tsim+dt/2)
+    Act_3 = interpol(time_vector, l_act_memory , tsim+dt)
+    lmtc_3 = interpol(time_vector, l_mtc_memory, tsim+dt)
+    
+    lce_curr = x0
+    
+    K1=vce_compute(lce_curr, lmtc_1, Act_1, muscle)[0]
+    K2=vce_compute(lce_curr+dt*K1/2, lmtc_2, Act_2, muscle)[0]
+    K3=vce_compute(lce_curr+dt*K2/2, lmtc_2, Act_2, muscle)[0]
+    K4=vce_compute(lce_curr+dt*K3, lmtc_3, Act_3, muscle)[0]
+    
+    lce_final = lce_curr + dt*(K1+2*K2+2*K3+K4)/6
+    
+    return lce_final
+
 
 # 3) 3ème fonction qui permet d'updater la valeur de la longueur de l'unité musculaire l_mtu[m] en fonction de l'angle de l'articulation
 #
