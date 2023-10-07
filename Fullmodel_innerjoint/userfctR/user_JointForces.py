@@ -2,9 +2,14 @@
 """Module for the definition of joint forces."""
 # Author: Robotran Team
 # (c) Universite catholique de Louvain, 2020
-
 import sys
-sys.path.insert(0, "C:\\Users\\ndine\\Documents\\MBProjects\\full_model_plot_test\\Fullmodel_innerjoint\\User_function")
+
+import os
+# Get the directory where your script is located
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+sys.path.insert(0,  os.path.join(parent_dir, "User_function"))
+sys.path.insert(1,  os.path.join(parent_dir, "userfctR"))
 
 
 
