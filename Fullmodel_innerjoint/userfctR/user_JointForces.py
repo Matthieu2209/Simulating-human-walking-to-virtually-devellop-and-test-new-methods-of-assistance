@@ -5,6 +5,7 @@
 import sys
 
 import os
+import time
 # Get the directory where your script is located
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -142,11 +143,13 @@ lce_prec_GLU_R=0
 lce_prec_HFL_R=0
 
 
-time = np.zeros(1)
+time_keeper= np.zeros(1)
 
 
 stim_left = np.zeros(7)
 stim_right = np.zeros(7)
+
+elapsed_time=0
 
 def user_JointForces(mbs_data, tsim):
     
@@ -176,7 +179,7 @@ def user_JointForces(mbs_data, tsim):
     
     #global variable
     
-    global time
+    global time_keeper
     global LDx_memory
     global RDx_memory
     global theta_trunk_memory
@@ -271,11 +274,11 @@ def user_JointForces(mbs_data, tsim):
     
     #compute of the time step :
     
-    dt= tsim - time[-1]
+    dt= tsim - time_keeper[-1]
     dt=round(dt,10)
     # print(tsim,dt)
     if tsim!=0:
-        time = np.append(time,tsim)
+        time_keeper = np.append(time,tsim)
     
     #### sensors index :
         
@@ -373,6 +376,7 @@ def user_JointForces(mbs_data, tsim):
     #### jusque ici ca parait plus ou moins correct
     
     #### update memory Stance, ldx/Rdx filtered, theta-dtheta trunk
+    max_ts=2
     
     if tsim == 0:
         
@@ -387,23 +391,26 @@ def user_JointForces(mbs_data, tsim):
         f_m_memoryR = np.array([0, 0, 0, 0, 0, 0, 0, tsim])
         lce_memoryR = np.array([0, 0, 0, 0, 0, 0, 0, tsim])
     
+
     else :
         if dt!=0 :
+            max_ts=round((0.2/dt))+1
             
-            LDx_memory =  np.vstack([LDx_memory,[Ldx,tsim]])
-            RDx_memory = np.vstack([RDx_memory, [Rdx, tsim]])
-            theta_trunk_memory = np.vstack( [theta_trunk_memory, [theta_trunk, tsim]])
-            dtheta_trunk_memory = np.vstack([dtheta_trunk_memory, [dtheta_trunk, tsim]])
-            Stance_memory = np.vstack([Stance_memory, [StanceL, StanceR, tsim]])
             
-            f_m_memoryL = np.vstack([f_m_memoryL, [0, 0, 0, 0, 0, 0, 0, tsim]])
-            lce_memoryL = np.vstack([lce_memoryL, [0, 0, 0, 0, 0, 0, 0, tsim]])
-            f_m_memoryR = np.vstack([f_m_memoryR, [0, 0, 0, 0, 0, 0, 0, tsim]])
-            lce_memoryR = np.vstack([lce_memoryR, [0, 0, 0, 0, 0, 0, 0, tsim]])
+            LDx_memory =  np.vstack([LDx_memory,[Ldx,tsim]])[-max_ts:]
+            RDx_memory = np.vstack([RDx_memory, [Rdx, tsim]])[-max_ts:]
+            theta_trunk_memory = np.vstack( [theta_trunk_memory, [theta_trunk, tsim]])[-max_ts:]
+            dtheta_trunk_memory = np.vstack([dtheta_trunk_memory, [dtheta_trunk, tsim]])[-max_ts:]
+            Stance_memory = np.vstack([Stance_memory, [StanceL, StanceR, tsim]])[-max_ts:]
+            
+            f_m_memoryL = np.vstack([f_m_memoryL, [0, 0, 0, 0, 0, 0, 0, tsim]])[-max_ts:]
+            lce_memoryL = np.vstack([lce_memoryL, [0, 0, 0, 0, 0, 0, 0, tsim]])[-max_ts:]
+            f_m_memoryR = np.vstack([f_m_memoryR, [0, 0, 0, 0, 0, 0, 0, tsim]])[-max_ts:]
+            lce_memoryR = np.vstack([lce_memoryR, [0, 0, 0, 0, 0, 0, 0, tsim]])[-max_ts:]
             
             if tsim >= 0.01:
                     
-                Stance_memory_delayed = np.vstack([Stance_memory_delayed, [Stance_memory[-1-round((0.01/dt)),0], Stance_memory[-1-round((0.01/dt)),1], tsim]])
+                Stance_memory_delayed = np.vstack([Stance_memory_delayed, [Stance_memory[-1-round((0.01/dt)),0], Stance_memory[-1-round((0.01/dt)),1], tsim]])[-max_ts:]
             else: 
                 Stance_memory_delayed[-1,2] = tsim
     
@@ -439,7 +446,7 @@ def user_JointForces(mbs_data, tsim):
     lmtu_HFL_R = muscle.lmtu_updateHFL(hipR_q, HFL)
     
     if tsim == 0 :
-        
+
         #TA
         x_0_TA_L = lmtu_TA_L - muscle.l_slack_muscle[TA]
         A_TA_L = u_f.low_filter(StimL[TA],tau,0,0)
@@ -544,101 +551,105 @@ def user_JointForces(mbs_data, tsim):
         lmtc_memory_HFL_R =np.array(([lmtu_HFL_R,round(tsim,10)]))
         lce_HFL_R = x_0_HFL_R
         Fm_HFL_R = muscle.vce_compute(lce_HFL_R, lmtu_HFL_R, A_HFL_R, HFL)[1]
+
+
     
     else:
         if dt!=0 :
+
             
             #TA
             A_TA_L = u_f.low_filter(StimL[TA],tau,dt,A_prec_TA_L)
-            act_memory_TA_L = np.vstack([act_memory_TA_L,[A_TA_L,round(tsim,10)]])
-            lmtc_memory_TA_L =np.vstack([lmtc_memory_TA_L,[lmtu_TA_L,round(tsim,10)]])
+            act_memory_TA_L = np.vstack([act_memory_TA_L,[A_TA_L,round(tsim,10)]])[-max_ts:]
+            lmtc_memory_TA_L =np.vstack([lmtc_memory_TA_L,[lmtu_TA_L,round(tsim,10)]])[-max_ts:]
             lce_TA_L = muscle.integrateur2000(lce_prec_TA_L, dt, 5, lmtc_memory_TA_L[:,0], act_memory_TA_L[:,0], tsim-dt, TA,lmtc_memory_TA_L[:,1])
             #lce_TA_L = muscle.Runge_kutta4(lce_prec_TA_L, dt, lmtc_memory_TA_L[:,0], act_memory_TA_L[:,0], tsim-dt, TA,lmtc_memory_TA_L[:,1])
             
             A_TA_R = u_f.low_filter(StimR[TA],tau,dt,A_prec_TA_R)
-            act_memory_TA_R = np.vstack([act_memory_TA_R,[A_TA_R,round(tsim,10)]])
-            lmtc_memory_TA_R =np.vstack([lmtc_memory_TA_R,[lmtu_TA_R,round(tsim,10)]])
+            act_memory_TA_R = np.vstack([act_memory_TA_R,[A_TA_R,round(tsim,10)]])[-max_ts:]
+            lmtc_memory_TA_R =np.vstack([lmtc_memory_TA_R,[lmtu_TA_R,round(tsim,10)]])[-max_ts:]
             lce_TA_R = muscle.integrateur2000(lce_prec_TA_R, dt, 5, lmtc_memory_TA_R[:,0], act_memory_TA_R[:,0], tsim-dt, TA,lmtc_memory_TA_R[:,1])
             #lce_TA_R = muscle.Runge_kutta4(lce_prec_TA_R, dt, lmtc_memory_TA_R[:,0], act_memory_TA_R[:,0], tsim-dt, TA,lmtc_memory_TA_R[:,1])
             
             #GAS
             A_GAS_L = u_f.low_filter(StimL[GAS],tau,dt,A_prec_GAS_L)
-            act_memory_GAS_L = np.vstack([act_memory_GAS_L,[A_GAS_L,round(tsim,10)]])
-            lmtc_memory_GAS_L =np.vstack([lmtc_memory_GAS_L,[lmtu_GAS_L,round(tsim,10)]])
+            act_memory_GAS_L = np.vstack([act_memory_GAS_L,[A_GAS_L,round(tsim,10)]])[-max_ts:]
+            lmtc_memory_GAS_L =np.vstack([lmtc_memory_GAS_L,[lmtu_GAS_L,round(tsim,10)]])[-max_ts:]
             lce_GAS_L = muscle.integrateur2000(lce_prec_GAS_L, dt, 5, lmtc_memory_GAS_L[:,0], act_memory_GAS_L[:,0], tsim-dt, GAS,lmtc_memory_GAS_L[:,1])
             #lce_GAS_L = muscle.Runge_kutta4(lce_prec_GAS_L, dt, lmtc_memory_GAS_L[:,0], act_memory_GAS_L[:,0], tsim-dt, GAS,lmtc_memory_GAS_L[:,1])
             
             A_GAS_R = u_f.low_filter(StimR[GAS],tau,dt,A_prec_GAS_R)
-            act_memory_GAS_R = np.vstack([act_memory_GAS_R,[A_GAS_R,round(tsim,10)]])
-            lmtc_memory_GAS_R =np.vstack([lmtc_memory_GAS_R,[lmtu_GAS_R,round(tsim,10)]])
+            act_memory_GAS_R = np.vstack([act_memory_GAS_R,[A_GAS_R,round(tsim,10)]])[-max_ts:]
+            lmtc_memory_GAS_R =np.vstack([lmtc_memory_GAS_R,[lmtu_GAS_R,round(tsim,10)]])[-max_ts:]
             lce_GAS_R = muscle.integrateur2000(lce_prec_GAS_R, dt, 5, lmtc_memory_GAS_R[:,0], act_memory_GAS_R[:,0], tsim-dt, GAS,lmtc_memory_GAS_R[:,1])
             #lce_GAS_R = muscle.Runge_kutta4(lce_prec_GAS_R, dt, lmtc_memory_GAS_R[:,0], act_memory_GAS_R[:,0], tsim-dt, GAS,lmtc_memory_GAS_R[:,1])
             
             #SOL
             A_SOL_L = u_f.low_filter(StimL[SOL],tau,dt,A_prec_SOL_L)
-            act_memory_SOL_L = np.vstack([act_memory_SOL_L,[A_SOL_L,round(tsim,10)]])
-            lmtc_memory_SOL_L =np.vstack([lmtc_memory_SOL_L,[lmtu_SOL_L,round(tsim,10)]])
+            act_memory_SOL_L = np.vstack([act_memory_SOL_L,[A_SOL_L,round(tsim,10)]])[-max_ts:]
+            lmtc_memory_SOL_L =np.vstack([lmtc_memory_SOL_L,[lmtu_SOL_L,round(tsim,10)]])[-max_ts:]
             lce_SOL_L = muscle.integrateur2000(lce_prec_SOL_L, dt, 5, lmtc_memory_SOL_L[:,0], act_memory_SOL_L[:,0], tsim-dt, SOL,lmtc_memory_SOL_L[:,1])
             #lce_SOL_L = muscle.Runge_kutta4(lce_prec_SOL_L, dt, lmtc_memory_SOL_L[:,0], act_memory_SOL_L[:,0], tsim-dt, SOL,lmtc_memory_SOL_L[:,1])
             
             A_SOL_R = u_f.low_filter(StimR[SOL],tau,dt,A_prec_SOL_R)
-            act_memory_SOL_R = np.vstack([act_memory_SOL_R,[A_SOL_R,round(tsim,10)]])
-            lmtc_memory_SOL_R =np.vstack([lmtc_memory_SOL_R,[lmtu_SOL_R,round(tsim,10)]])
+            act_memory_SOL_R = np.vstack([act_memory_SOL_R,[A_SOL_R,round(tsim,10)]])[-max_ts:]
+            lmtc_memory_SOL_R =np.vstack([lmtc_memory_SOL_R,[lmtu_SOL_R,round(tsim,10)]])[-max_ts:]
             lce_SOL_R = muscle.integrateur2000(lce_prec_SOL_R, dt, 5, lmtc_memory_SOL_R[:,0], act_memory_SOL_R[:,0], tsim-dt, SOL,lmtc_memory_SOL_R[:,1])
             #lce_SOL_R = muscle.Runge_kutta4(lce_prec_SOL_R, dt, lmtc_memory_SOL_R[:,0], act_memory_SOL_R[:,0], tsim-dt, SOL,lmtc_memory_SOL_R[:,1])
             
             #VAS
             A_VAS_L = u_f.low_filter(StimL[VAS],tau,dt,A_prec_VAS_L)
-            act_memory_VAS_L = np.vstack([act_memory_VAS_L,[A_VAS_L,round(tsim,10)]])
-            lmtc_memory_VAS_L =np.vstack([lmtc_memory_VAS_L,[lmtu_VAS_L,round(tsim,10)]])
+            act_memory_VAS_L = np.vstack([act_memory_VAS_L,[A_VAS_L,round(tsim,10)]])[-max_ts:]
+            lmtc_memory_VAS_L =np.vstack([lmtc_memory_VAS_L,[lmtu_VAS_L,round(tsim,10)]])[-max_ts:]
             lce_VAS_L = muscle.integrateur2000(lce_prec_VAS_L, dt, 8, lmtc_memory_VAS_L[:,0], act_memory_VAS_L[:,0], tsim-dt, VAS,lmtc_memory_VAS_L[:,1])
             #lce_VAS_L = muscle.Runge_kutta4(lce_prec_VAS_L, dt, lmtc_memory_VAS_L[:,0], act_memory_VAS_L[:,0], tsim-dt, VAS,lmtc_memory_VAS_L[:,1])
             
             A_VAS_R = u_f.low_filter(StimR[VAS],tau,dt,A_prec_VAS_R)
-            act_memory_VAS_R = np.vstack([act_memory_VAS_R,[A_VAS_R,round(tsim,10)]])
-            lmtc_memory_VAS_R =np.vstack([lmtc_memory_VAS_R,[lmtu_VAS_R,round(tsim,10)]])
+            act_memory_VAS_R = np.vstack([act_memory_VAS_R,[A_VAS_R,round(tsim,10)]])[-max_ts:]
+            lmtc_memory_VAS_R =np.vstack([lmtc_memory_VAS_R,[lmtu_VAS_R,round(tsim,10)]])[-max_ts:]
             lce_VAS_R = muscle.integrateur2000(lce_prec_VAS_R, dt, 5, lmtc_memory_VAS_R[:,0], act_memory_VAS_R[:,0], tsim-dt, VAS,lmtc_memory_VAS_R[:,1])
             #lce_VAS_R = muscle.Runge_kutta4(lce_prec_VAS_R, dt, lmtc_memory_VAS_R[:,0], act_memory_VAS_R[:,0], tsim-dt, VAS,lmtc_memory_VAS_R[:,1])
             
             #HAM
             A_HAM_L = u_f.low_filter(StimL[HAM],tau,dt,A_prec_HAM_L)
-            act_memory_HAM_L = np.vstack([act_memory_HAM_L,[A_HAM_L,round(tsim,10)]])
-            lmtc_memory_HAM_L =np.vstack([lmtc_memory_HAM_L,[lmtu_HAM_L,round(tsim,10)]])
+            act_memory_HAM_L = np.vstack([act_memory_HAM_L,[A_HAM_L,round(tsim,10)]])[-max_ts:]
+            lmtc_memory_HAM_L =np.vstack([lmtc_memory_HAM_L,[lmtu_HAM_L,round(tsim,10)]])[-max_ts:]
             lce_HAM_L = muscle.integrateur2000(lce_prec_HAM_L, dt, 5, lmtc_memory_HAM_L[:,0], act_memory_HAM_L[:,0], tsim-dt, HAM,lmtc_memory_HAM_L[:,1])
             #lce_HAM_L = muscle.Runge_kutta4(lce_prec_HAM_L, dt, lmtc_memory_HAM_L[:,0], act_memory_HAM_L[:,0], tsim-dt, HAM,lmtc_memory_HAM_L[:,1])
             
             A_HAM_R = u_f.low_filter(StimR[HAM],tau,dt,A_prec_HAM_R)
-            act_memory_HAM_R = np.vstack([act_memory_HAM_R,[A_HAM_R,round(tsim,10)]])
-            lmtc_memory_HAM_R =np.vstack([lmtc_memory_HAM_R,[lmtu_HAM_R,round(tsim,10)]])
+            act_memory_HAM_R = np.vstack([act_memory_HAM_R,[A_HAM_R,round(tsim,10)]])[-max_ts:]
+            lmtc_memory_HAM_R =np.vstack([lmtc_memory_HAM_R,[lmtu_HAM_R,round(tsim,10)]])[-max_ts:]
             lce_HAM_R = muscle.integrateur2000(lce_prec_HAM_R, dt, 5, lmtc_memory_HAM_R[:,0], act_memory_HAM_R[:,0], tsim-dt, HAM,lmtc_memory_HAM_R[:,1])
             #lce_HAM_R = muscle.Runge_kutta4(lce_prec_HAM_R, dt, lmtc_memory_HAM_R[:,0], act_memory_HAM_R[:,0], tsim-dt, HAM,lmtc_memory_HAM_R[:,1])
             
             #GLU
             A_GLU_L = u_f.low_filter(StimL[GLU],tau,dt,A_prec_GLU_L)
-            act_memory_GLU_L = np.vstack([act_memory_GLU_L,[A_GLU_L,round(tsim,10)]])
-            lmtc_memory_GLU_L =np.vstack([lmtc_memory_GLU_L,[lmtu_GLU_L,round(tsim,10)]])
+            act_memory_GLU_L = np.vstack([act_memory_GLU_L,[A_GLU_L,round(tsim,10)]])[-max_ts:]
+            lmtc_memory_GLU_L =np.vstack([lmtc_memory_GLU_L,[lmtu_GLU_L,round(tsim,10)]])[-max_ts:]
             lce_GLU_L = muscle.integrateur2000(lce_prec_GLU_L, dt, 5, lmtc_memory_GLU_L[:,0], act_memory_GLU_L[:,0], tsim-dt, GLU,lmtc_memory_GLU_L[:,1])
             #lce_GLU_L = muscle.Runge_kutta4(lce_prec_GLU_L, dt, lmtc_memory_GLU_L[:,0], act_memory_GLU_L[:,0], tsim-dt, GLU,lmtc_memory_GLU_L[:,1])
             
             A_GLU_R = u_f.low_filter(StimR[GLU],tau,dt,A_prec_GLU_R)
-            act_memory_GLU_R = np.vstack([act_memory_GLU_R,[A_GLU_R,round(tsim,10)]])
-            lmtc_memory_GLU_R =np.vstack([lmtc_memory_GLU_R,[lmtu_GLU_R,round(tsim,10)]])
+            act_memory_GLU_R = np.vstack([act_memory_GLU_R,[A_GLU_R,round(tsim,10)]])[-max_ts:]
+            lmtc_memory_GLU_R =np.vstack([lmtc_memory_GLU_R,[lmtu_GLU_R,round(tsim,10)]])[-max_ts:]
             lce_GLU_R = muscle.integrateur2000(lce_prec_GLU_R, dt, 5, lmtc_memory_GLU_R[:,0], act_memory_GLU_R[:,0], tsim-dt, GLU,lmtc_memory_GLU_R[:,1])
             #lce_GLU_R = muscle.Runge_kutta4(lce_prec_GLU_R, dt, lmtc_memory_GLU_R[:,0], act_memory_GLU_R[:,0], tsim-dt, GLU,lmtc_memory_GLU_R[:,1])
             
             #HFL
             A_HFL_L = u_f.low_filter(StimL[HFL],tau,dt,A_prec_HFL_L)
-            act_memory_HFL_L = np.vstack([act_memory_HFL_L,[A_HFL_L,round(tsim,10)]])
-            lmtc_memory_HFL_L =np.vstack([lmtc_memory_HFL_L,[lmtu_HFL_L,round(tsim,10)]])
+            act_memory_HFL_L = np.vstack([act_memory_HFL_L,[A_HFL_L,round(tsim,10)]])[-max_ts:]
+            lmtc_memory_HFL_L =np.vstack([lmtc_memory_HFL_L,[lmtu_HFL_L,round(tsim,10)]])[-max_ts:]
             lce_HFL_L = muscle.integrateur2000(lce_prec_HFL_L, dt, 5, lmtc_memory_HFL_L[:,0], act_memory_HFL_L[:,0], tsim-dt, HFL,lmtc_memory_HFL_L[:,1])
             #lce_HFL_L = muscle.Runge_kutta4(lce_prec_HFL_L, dt, lmtc_memory_HFL_L[:,0], act_memory_HFL_L[:,0], tsim-dt, HFL,lmtc_memory_HFL_L[:,1])
             
             A_HFL_R = u_f.low_filter(StimR[HFL],tau,dt,A_prec_HFL_R)
-            act_memory_HFL_R = np.vstack([act_memory_HFL_R,[A_HFL_R,round(tsim,10)]])
-            lmtc_memory_HFL_R =np.vstack([lmtc_memory_HFL_R,[lmtu_HFL_R,round(tsim,10)]])
+            act_memory_HFL_R = np.vstack([act_memory_HFL_R,[A_HFL_R,round(tsim,10)]])[-max_ts:]
+            lmtc_memory_HFL_R =np.vstack([lmtc_memory_HFL_R,[lmtu_HFL_R,round(tsim,10)]])[-max_ts:]
             lce_HFL_R = muscle.integrateur2000(lce_prec_HFL_R, dt, 5, lmtc_memory_HFL_R[:,0], act_memory_HFL_R[:,0], tsim-dt, HFL,lmtc_memory_HFL_R[:,1])
             #lce_HFL_R = muscle.Runge_kutta4(lce_prec_HFL_R, dt, lmtc_memory_HFL_R[:,0], act_memory_HFL_R[:,0], tsim-dt, HFL,lmtc_memory_HFL_R[:,1])
-            
+
+                
         else :
             
             #TA
@@ -884,10 +895,22 @@ def user_JointForces(mbs_data, tsim):
     mbs_data.Qq[id_kneeL] = - Torque_knee_L
     mbs_data.Qq[id_hipL] = Torque_hip_L
     
-    mbs_data.Qq[id_ankleR] = - Torque_ankle_R
+    mbs_data.Qq[id_ankleR] = - Torque_ankle_R 
     mbs_data.Qq[id_kneeR] = Torque_knee_R
     mbs_data.Qq[id_hipR] = - Torque_hip_R
     
     
 
     return
+
+
+
+import os
+import sys 
+import TestworkR
+
+# Get the directory where your script is located
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(2,  os.path.join(parent_dir, "workR"))
+if __name__ == "__main__":
+    TestworkR.runtest(250e-7,0.1,c=False)

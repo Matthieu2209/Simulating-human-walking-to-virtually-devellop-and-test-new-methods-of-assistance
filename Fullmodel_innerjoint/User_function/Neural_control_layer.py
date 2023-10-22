@@ -153,6 +153,18 @@ def Feedback(current_t, diff_t, Stance_memory, Fm_memory, ipsiDx_thigh, contraDx
     index_t_s = round((current_t/diff_t)) - round((0.005/diff_t))
     index_current_t = round((current_t/diff_t))
 
+    cut_off=round(0.02/diff_t)
+    if(index_current_t>cut_off):
+        excess_t = int(index_current_t-cut_off)
+
+        index_t_l -= excess_t
+        index_t_m -= excess_t
+        index_t_s -= excess_t
+        index_current_t-= excess_t
+        
+        
+        
+    
     global countL
     global countR
   
@@ -392,5 +404,15 @@ def Feedback(current_t, diff_t, Stance_memory, Fm_memory, ipsiDx_thigh, contraDx
 
     
     
-    
+        
+import sys
+import os
+# Get the directory where your script is located
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(2,  os.path.join(parent_dir, "workR"))
+import TestworkR
+
+
+if __name__ == "__main__":
+    TestworkR.runtest(250e-7,0.5,c=False)
     
