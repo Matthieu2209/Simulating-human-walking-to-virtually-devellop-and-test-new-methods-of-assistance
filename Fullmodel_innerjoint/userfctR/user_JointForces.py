@@ -151,7 +151,11 @@ stim_right = np.zeros(7)
 
 elapsed_time=0
 
+
+counter=0
 def user_JointForces(mbs_data, tsim):
+
+        
     
     global stim_left
     global stim_right
@@ -327,11 +331,32 @@ def user_JointForces(mbs_data, tsim):
     #### Obtention Stance
     
     # control of contact for BallL,HeelL,BallR,HeelR
-    
+
+        
     BallL_cnt,HeelL_cnt,BallR_cnt,HeelR_cnt = u_f.contact_cnt(mbs_data.sensors[id_BallL].P[3], mbs_data.sensors[id_HeelL].P[3], mbs_data.sensors[id_BallR].P[3], mbs_data.sensors[id_HeelR].P[3],ground_limit)
     
-    # Stance or not ?
+    #BallL_cnt,HeelL_cnt,BallR_cnt,HeelR_cnt = u_f.force_contact_cnt(mbs_data)
+
+    """     
+    global counter
+    counter+=1
+    a=np.array((BallL_cnt,HeelL_cnt,BallR_cnt,HeelR_cnt))
+    b=np.array(u_f.contact_cnt(mbs_data.sensors[id_BallL].P[3], mbs_data.sensors[id_HeelL].P[3], mbs_data.sensors[id_BallR].P[3], mbs_data.sensors[id_HeelR].P[3],ground_limit))
+    if(counter%100==0 and np.sum(a-b)!=0):
+        print("\n")
+
+        print(tsim)
+                
+        print(mbs_data.SWr[mbs_data.extforce_id["Force_BallL"]][3])
+        print(mbs_data.SWr[mbs_data.extforce_id["Force_HeelL"]][3])
+        print(mbs_data.SWr[mbs_data.extforce_id["Force_BallR"]][3])
+        print(mbs_data.SWr[mbs_data.extforce_id["Force_HeelR"]][3])
+
+        print(a)
+        print(b)
     
+    # Stance or not ?
+     """
     StanceL,StanceR = u_f.Stance_cnt(BallL_cnt,HeelL_cnt,BallR_cnt,HeelR_cnt)
     
     if tsim < 0.002:
@@ -913,4 +938,4 @@ import TestworkR
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(2,  os.path.join(parent_dir, "workR"))
 if __name__ == "__main__":
-    TestworkR.runtest(250e-7,0.1,c=False)
+    TestworkR.runtest(250e-7,1.8,c=False)

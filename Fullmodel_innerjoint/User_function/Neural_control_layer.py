@@ -60,6 +60,22 @@ def lead(Stance_memory, tsim):
                 else:
                     RonL = 0
                     LonR = 1
+                    
+            if countL == countR:
+                print("same stance count: This should not happen")
+                for i in range (1,len(Stance_memory[-1])):
+                    if(Stance_memory[-i, 0] > Stance_memory[-i, 1]):
+                         RonL = 1
+                         LonR = 0
+                         return RonL,LonR 
+                     
+                    if(Stance_memory[-i, 0] < Stance_memory[-i, 1]):
+                         RonL = 0
+                         LonR = 1
+                         return RonL,LonR 
+                
+                RonL = 0
+                LonR = 0
         else:
             RonL = 0
             LonR = 0
@@ -140,7 +156,7 @@ def Feedback(current_t, diff_t, Stance_memory, Fm_memory, ipsiDx_thigh, contraDx
     k_p = 1.909859317102744
     k_d = 0.2
     phi_k_off = 2.967059728390360
-    theta_ref = 0.104719755119660
+    theta_ref = 0.0104719755119660
 
     # delay
 
@@ -414,5 +430,5 @@ import TestworkR
 
 
 if __name__ == "__main__":
-    TestworkR.runtest(250e-7,0.5,c=False)
+    TestworkR.runtest(250e-7,6.0,c=False)
     

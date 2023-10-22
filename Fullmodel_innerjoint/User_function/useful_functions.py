@@ -9,6 +9,8 @@ Created on Thu Nov 10 13:51:51 2022
 import numpy as np
 import math
 from scipy import signal 
+import MBsysPy
+
 
 ################################ Usefuls functions ####################################################################################
 
@@ -71,6 +73,39 @@ def contact_cnt(BallL_positionz,HeelL_positionz,BallR_positionz,HeelR_positionz,
 
     return BallL_cnt,HeelL_cnt,BallR_cnt,HeelR_cnt
 
+
+#important : z forces are inversed 
+
+def force_contact_cnt(mbs_data):
+    
+    threshold=-10 
+   
+    
+    if  mbs_data.SWr[mbs_data.extforce_id["Force_BallL"]][3] < threshold: 
+        BallL_cnt=1
+    else:
+        BallL_cnt=0
+        
+        
+    if  mbs_data.SWr[mbs_data.extforce_id["Force_BallR"]][3] < threshold: 
+        BallR_cnt=1
+    else:
+        BallR_cnt=0
+        
+        
+    if  mbs_data.SWr[mbs_data.extforce_id["Force_HeelR"]][3] < threshold: 
+        HeelR_cnt=1
+    else:
+        HeelR_cnt=0
+        
+        
+    if  mbs_data.SWr[mbs_data.extforce_id["Force_HeelL"]][3] < threshold: 
+        HeelL_cnt=1
+    else:
+        HeelL_cnt=0
+        
+
+    return BallL_cnt,HeelL_cnt,BallR_cnt,HeelR_cnt
 
 
 def Stance_cnt(BallL_cnt,HeelL_cnt,BallR_cnt,HeelR_cnt):
