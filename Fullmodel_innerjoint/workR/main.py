@@ -75,7 +75,7 @@ mbs_part.run()
 # =============================================================================
 mbs_data.process = 3
 mbs_dirdyn = Robotran.MbsDirdyn(mbs_data)
-#mbs_dirdyn.set_options(dt0=250e-7, tf=1.5, save2file=1) # [Done] exited with code=0 in 9560.745 seconds
+#mbs_dirdyn.set_options(dt0=250e-7, tf=1.5, save2file=1) # [Done] exited with code=0 in 9560.745 seconds/159 mins / 2h30
 #mbs_dirdyn.set_options(dt0=250e-7, tf=0.5, save2file=1) #1124.726s
 #mbs_dirdyn.set_options(dt0=250e-7, tf=0.005, save2file=1) #5s
 #mbs_dirdyn.set_options(dt0=250e-7, tf=0.05, save2file=1) #40s

@@ -181,10 +181,12 @@ def integrateur2000(x0,dt,N_iter,l_mtc_memory,l_act_memory,tsim,muscle,time_vect
     dt_iter = dt/N_iter
     lce_curr = x0
     
-        
+    f_act= interp1d(time_vector,l_act_memory, kind = "linear")
+    f_mtc= interp1d(time_vector,l_mtc_memory, kind = "linear")
+    
     for i in range (N_iter):
-        Act_i = interpol(time_vector, l_act_memory , tsim + (i+1)*dt_iter)
-        lmtc_i = interpol(time_vector, l_mtc_memory, tsim + (i+1)*dt_iter)
+        Act_i =  f_act(round(tsim + (i+1)*dt_iter,10))
+        lmtc_i =  f_mtc(round(tsim + (i+1)*dt_iter,10))
         vce_curr = vce_compute(lce_curr, lmtc_i, Act_i, muscle)[0]
         if lce_curr + vce_curr * dt_iter > 0 :
             lce_curr = (lce_curr + vce_curr * dt_iter)
@@ -193,37 +195,14 @@ def integrateur2000(x0,dt,N_iter,l_mtc_memory,l_act_memory,tsim,muscle,time_vect
         
     return lce_curr
 
-def Runge_kutta4(x0,dt,l_mtc_memory,l_act_memory,tsim,muscle,time_vector):
+#def Runge_kutta4(x0,dt,l_mtc_memory,l_act_memory,tsim,muscle,time_vector):
 #def integrateur2000(x0,dt,N_iter,l_mtc_memory,l_act_memory,tsim,muscle,time_vector):
     
     tsim=tsim+dt
     
     span=len(l_mtc_memory)
-    
-    #f_act= interp1d(time_vector, l_act_memory,kind = "quadratic’")
-    #f_ltmc= interp1d(time_vector, l_mtc_memory,kind = "quadratic’")
 
-    
-
-    #Act_1  = f_act(round(tsim-span*dt,10)) 
-    #lmtc_1 = f_ltmc(round(tsim-span*dt,10)) 
-    #Act_2  = f_act(round(tsim-span*dt/2,10)) 
-    #lmtc_2 = f_ltmc(round(tsim-span*dt/2,10)) 
-    #Act_3  = f_act(round(tsim,10)) 
-    #lmtc_3 = f_ltmc(round(tsim,10)) 
-    current=0
-    if (span>N_iter):
-        for i in range(span):
-            current+=(x0 + dt*vce_compute(x0,         l_mtc_memory[-i]      ,l_act_memory[-i], muscle)[0])/span
-            
-        return current
-    else:
-         return (x0 + dt*vce_compute(x0,         l_mtc_memory[-1]      ,l_act_memory[-1], muscle)[0])
-        
-        
-    
-   
-    
+       
     global counter
     counter+=1
     if(counter%(100000)==0):
@@ -247,6 +226,26 @@ def Runge_kutta4(x0,dt,l_mtc_memory,l_act_memory,tsim,muscle,time_vector):
             return lce_final
     else: 
             return 0
+
+#def integrateur2000(x0,dt,N_iter,l_mtc_memory,l_act_memory,tsim,muscle,time_vector):
+    
+    Act_1 = interpol(time_vector, l_act_memory , tsim)
+    lmtc_1 = interpol(time_vector, l_mtc_memory, tsim)
+    Act_2 = interpol(time_vector, l_act_memory , tsim+dt/2)
+    lmtc_2 = interpol(time_vector, l_mtc_memory, tsim+dt/2)
+    Act_3 = interpol(time_vector, l_act_memory , tsim+dt)
+    lmtc_3 = interpol(time_vector, l_mtc_memory, tsim+dt)
+    
+    lce_curr = x0
+    
+    K1=vce_compute(lce_curr, lmtc_1, Act_1, muscle)[0]
+    K2=vce_compute(lce_curr+dt*K1/2, lmtc_2, Act_2, muscle)[0]
+    K3=vce_compute(lce_curr+dt*K2/2, lmtc_2, Act_2, muscle)[0]
+    K4=vce_compute(lce_curr+dt*K3, lmtc_3, Act_3, muscle)[0]
+    
+    lce_final = lce_curr + dt*(K1+2*K2+2*K3+K4)/6
+    
+    return lce_final
 
 
     
@@ -433,5 +432,6 @@ import TestworkR
 
 
 if __name__ == "__main__":
-    TestworkR.runtest(250e-7,1.8,c=False)
+    TestworkR.runtest(250e-7,0.5,c=False)
+    
     

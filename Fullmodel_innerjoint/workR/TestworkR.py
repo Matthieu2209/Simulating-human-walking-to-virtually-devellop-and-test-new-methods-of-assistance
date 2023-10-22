@@ -85,12 +85,16 @@ def runtest(dt0,tf,c=False):
     #mbs_dirdyn.set_options(dt0=250e-7, tf=0.00001, save2file=1) #0.9s
     #mbs_dirdyn.set_options(dt0=250e-7, tf=0.000001, save2file=1) #0.9s
     
+    
     from datetime import datetime
 
     now = datetime.now()
 
     current_time = now.strftime("%H:%M:%S")
-    print("Current Time =", current_time)
+    print("Current Time =", current_time, flush=True)
+    
+    
+
     
     mbs_dirdyn.set_options(dt0=dt0, tf=tf, save2file=1) # 96
     start_time = time.time()
@@ -98,7 +102,6 @@ def runtest(dt0,tf,c=False):
     results = mbs_dirdyn.run()
     
     elapsed_time = time.time() - start_time
-
 
     if(c):
         import os

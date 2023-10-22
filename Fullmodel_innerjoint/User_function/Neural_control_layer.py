@@ -153,7 +153,7 @@ def Feedback(current_t, diff_t, Stance_memory, Fm_memory, ipsiDx_thigh, contraDx
     index_t_s = round((current_t/diff_t)) - round((0.005/diff_t))
     index_current_t = round((current_t/diff_t))
 
-    cut_off=round(0.02/diff_t)
+    cut_off=round(0.2/diff_t)
     if(index_current_t>cut_off):
         excess_t = int(index_current_t-cut_off)
 

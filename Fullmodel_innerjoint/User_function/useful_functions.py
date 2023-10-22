@@ -41,6 +41,8 @@ def trunk_angle(P_sensor_hip, P_sensor_trunk,V_sensor_hip,V_sensor_trunk,tsim):
 
 
 
+
+
 def contact_cnt(BallL_positionz,HeelL_positionz,BallR_positionz,HeelR_positionz,ground_limit):
     
     if BallL_positionz-ground_limit >=0: 
@@ -129,4 +131,17 @@ def low_filter(stimulation,tau,diff_t,last_activation):
 
 
 
+        
+import sys
+import os
+# Get the directory where your script is located
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(2,  os.path.join(parent_dir, "workR"))
+import TestworkR
+
+
+if __name__ == "__main__":
+    TestworkR.runtest(250e-7,0.05,c=False)
+    
+    
 
