@@ -176,8 +176,9 @@ def interpol(time,signal,t):   #,N_points,dt):
 
     return signal_interpol
 
-
+'''
 def integrateur2000(x0,dt,N_iter,l_mtc_memory,l_act_memory,tsim,muscle,time_vector):
+    #N_iter=1
     dt_iter = dt/N_iter
     lce_curr = x0
     
@@ -194,7 +195,28 @@ def integrateur2000(x0,dt,N_iter,l_mtc_memory,l_act_memory,tsim,muscle,time_vect
             lce_curr = 0
         
     return lce_curr
+'''
+def integrateur2000(x0,dt,N_iter,l_mtc_memory,l_act_memory,tsim,muscle,time_vector):
+    #N_iter=1
+    #dt_iter = dt/N_iter
+    lce_curr = x0
+    
+    #f_act= interp1d(time_vector,l_act_memory, kind = "linear")
+    #f_mtc= interp1d(time_vector,l_mtc_memory, kind = "linear")
+    
 
+    #Act_i =  f_act(round(tsim,10))
+    #lmtc_i =  f_mtc(round(tsim,10))
+    
+    vce_curr = vce_compute(lce_curr, l_mtc_memory[-1], l_act_memory[-1], muscle)[0]
+    
+    if lce_curr + vce_curr * dt> 0 :
+        lce_curr = (lce_curr + vce_curr * dt)
+    else: 
+        lce_curr = 0
+        
+    return lce_curr
+        
 #def Runge_kutta4(x0,dt,l_mtc_memory,l_act_memory,tsim,muscle,time_vector):
 #def integrateur2000(x0,dt,N_iter,l_mtc_memory,l_act_memory,tsim,muscle,time_vector):
     
@@ -432,6 +454,5 @@ import TestworkR
 
 
 if __name__ == "__main__":
-    TestworkR.runtest(250e-7,0.5,c=False)
-    
+    TestworkR.runtest(250e-7,60.0,c=False)
     
