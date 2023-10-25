@@ -44,7 +44,9 @@ Stiction_prec_test_heelR=0
 x0_ballR = 0
 x0_heelR = 0
 
-
+flag_graph = True
+data_heelR= np.zeros((4,0))
+data_ballR= np.zeros((4,0))
 # Useful function for the contact force model
 
 def flip_flop_SR(S, R, Q, Qn):
@@ -261,6 +263,7 @@ def user_ExtForces(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF):
             Qn_ballL=0
             Stiction_prec_test_ballL=0
             
+
     #Contact model for external force on BALL R
     
     if ixF == Force_BallR:
@@ -271,6 +274,7 @@ def user_ExtForces(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF):
         MBsysPy.set_output_value(VxF[3], 3, "velocity_Z")
         d_z = PxF[3] -ground_limit
         
+        #print(round(VxF[1],2), round(tsim,2))
         #contact
         if d_z >=0 :
             
@@ -280,7 +284,8 @@ def user_ExtForces(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF):
                 Fz = (kz * -d_z *(1+VxF[3]/vmax))
             else :
                 Fz = 0
-            
+                
+    
             #update stiction mode
             old_Stiction_ballR = Stiction_test_ballR
             Stiction_test_ballR=Stiction_prec_test_ballR
@@ -307,6 +312,7 @@ def user_ExtForces(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF):
                 delta_vx = VxF[1] / vmax
                 
                 Fx_mod = -kx * delta_x * (1 + math.copysign(1, delta_x) * delta_vx)
+                
                 if Fz <0 :
                     Force_stick_ballR = Fx_mod  #Force stick
                 else:
@@ -317,6 +323,9 @@ def user_ExtForces(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF):
                     slide_test_ballR=1
                 else :
                     slide_test_ballR=0
+                    
+                    
+
                 
             
             #Kinetic friction model
@@ -341,15 +350,34 @@ def user_ExtForces(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF):
                 else :
                     stick_test_ballR = 0
                     
+                    
                 
             #Horizontal ground force
                 
+            
             Fx = (Force_slide_ballR + Force_stick_ballR)
+            if(abs(Fz)>1000000000):
+                print("Events")
+                print(Fx)
+                print(tsim)
+                print(Stiction_test_ballR)
+                print(Fz)
+                
+            
+
 
             #stiction mode
                 
             Q_ballR, Qn_ballR = flip_flop_SR(stick_test_ballR,slide_test_ballR, Q_ballR, Qn_ballR)
             Stiction_prec_test_ballR=Q_ballR
+        
+        if(tsim>0.155):
+                print("Events")
+                print(tsim)
+                print(Fz)
+                print(VxF[3])
+                print( PxF[1] - x0_ballR)
+                print(x0_ballR)
         
         #no contact   
         else:
@@ -460,6 +488,7 @@ def user_ExtForces(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF):
             Q_heelL=1
             Qn_heelL=0
             Stiction_prec_test_heelL=0
+            
 
     #Contact model for external force on HEEL R
 
@@ -556,12 +585,47 @@ def user_ExtForces(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF):
             
             Fz =0
             Fx =0
-            
+
             Q_heelR=1
             Qn_heelR=0
             Stiction_prec_test_heelR=0
     
     
+    """
+    global data_ballR
+
+    
+    if(ixF == Force_BallR and tsim < 0.3 and tsim > 0.01):
+
+        data_ballR=np.append(data_ballR,np.array([[Fx],[Fz],[PxF[3] -ground_limit],[tsim]]),axis=1)
+        
+    
+    global data_heelR
+    if(ixF == Force_HeelR and  tsim < 0.3 and tsim > 0.01):
+        data_heelR=np.append(data_heelR,np.array([[Fx],[Fz],[PxF[3] -ground_limit],[tsim]]),axis=1)
+
+     global flag_graph
+    if(tsim>0.3 and flag_graph):
+        import matplotlib.pyplot as plt
+        
+        id="plot_archive/multisources in events for ball and heel "
+        plt.plot(data_ballR[3,:],data_ballR[2,:],label="ballR d_z")
+        plt.plot(data_heelR[3,:],data_heelR[2,:],label="heelR d_z")
+        plt.plot(data_ballR[3,:],data_ballR[1,:],label="ballR fz")
+        plt.plot(data_heelR[3,:],data_heelR[1,:],label="heelR fz")
+        plt.plot(data_ballR[3,:],data_ballR[0,:],label="ballR fx")
+        plt.plot(data_heelR[3,:],data_heelR[0,:],label="heelR fx")
+        plt.legend()
+        plt.title(id)
+        plt.savefig(id)
+        plt.close()
+        
+
+    
+        
+        flag_graph=False """
+
+
 
     # Concatenating force, torque and force application point to returned array.
     # This must not be modified.
@@ -603,3 +667,25 @@ def user_ExtForces(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF):
     MBsysPy.set_output_value(Fz_BallR, 3, "external_force_Z")
     MBsysPy.set_output_value(Fz_BallL, 4, "external_force_Z")
     return Swr
+
+
+
+
+# (c) Universite catholique de Louvain, 2020
+import sys
+
+import os
+import time
+# Get the directory where your script is located
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+sys.path.insert(0,  os.path.join(parent_dir, "User_function"))
+sys.path.insert(1,  os.path.join(parent_dir, "userfctR"))
+sys.path.insert(2,  os.path.join(parent_dir, "workR"))
+
+
+import TestworkR
+
+
+if __name__ == "__main__":
+    TestworkR.runtest(250e-6,0.19,c=False)

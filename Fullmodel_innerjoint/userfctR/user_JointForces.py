@@ -938,4 +938,4 @@ import TestworkR
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(2,  os.path.join(parent_dir, "workR"))
 if __name__ == "__main__":
-    TestworkR.runtest(250e-6,1.8,c=False)
+    TestworkR.runtest(200e-6,1.8,c=False)

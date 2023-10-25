@@ -156,7 +156,7 @@ def Feedback(current_t, diff_t, Stance_memory, Fm_memory, ipsiDx_thigh, contraDx
     k_p = 1.909859317102744
     k_d = 0.2
     phi_k_off = 2.967059728390360
-    theta_ref = 0.0104719755119660
+    theta_ref = 0.017#0.104719755119660
 
     # delay
 
@@ -372,7 +372,7 @@ def Feedback(current_t, diff_t, Stance_memory, Fm_memory, ipsiDx_thigh, contraDx
     Stim[HFL] = max(0.01,min(Stim[HFL],1))
     Stim[SOL] = max(0.01,min(Stim[SOL],1))
     Stim[GAS] = max(0.01,min(Stim[GAS],1))
-    Stim[TA] = max(0.01,min(Stim[TA],1))
+    Stim[TA]  = max(0.01,min(Stim[TA],1))
     Stim[VAS] = max(0.01,min(Stim[VAS],1))
 
 
@@ -430,5 +430,5 @@ import TestworkR
 
 
 if __name__ == "__main__":
-    TestworkR.runtest(250e-7,6.0,c=False)
+    TestworkR.runtest(250e-7,1.8,c=False)
     
