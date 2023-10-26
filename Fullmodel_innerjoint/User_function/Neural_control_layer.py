@@ -156,7 +156,7 @@ def Feedback(current_t, diff_t, Stance_memory, Fm_memory, ipsiDx_thigh, contraDx
     k_p = 1.909859317102744
     k_d = 0.2
     phi_k_off = 2.967059728390360
-    theta_ref = 0.017#0.104719755119660
+    theta_ref = 0.0104719755119660#0.104719755119660
 
     # delay
 

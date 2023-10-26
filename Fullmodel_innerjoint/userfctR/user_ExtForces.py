@@ -9,6 +9,17 @@ import numpy as np
 import MBsysPy
 # Useful data for the contact force model
 
+import sys
+
+import os
+import time
+# Get the directory where your script is located
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+sys.path.insert(0,  os.path.join(parent_dir, "User_function"))
+sys.path.insert(1,  os.path.join(parent_dir, "userfctR"))
+import gait_graph
+
 ground_limit = 0
 vmax = 0.03
 kz = 78480
@@ -217,7 +228,7 @@ def user_ExtForces(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF):
                     slide_test_ballL=1
                 else :
                     slide_test_ballL=0
-                
+            
             
             #Kinetic friction model
             else :
@@ -252,6 +263,9 @@ def user_ExtForces(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF):
                 
             Q_ballL, Qn_ballL = flip_flop_SR(stick_test_ballL,slide_test_ballL, Q_ballL, Qn_ballL)
             Stiction_prec_test_ballL=Q_ballL
+            
+                     
+
         
         #no contact   
         else:
@@ -262,6 +276,9 @@ def user_ExtForces(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF):
             Q_ballL=1
             Qn_ballL=0
             Stiction_prec_test_ballL=0
+            
+        
+        
             
 
     #Contact model for external force on BALL R
@@ -276,6 +293,8 @@ def user_ExtForces(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF):
         
         #print(round(VxF[1],2), round(tsim,2))
         #contact
+        delta_x=0
+        delta_vx=0
         if d_z >=0 :
             
             #Vertical ground force model
@@ -349,45 +368,32 @@ def user_ExtForces(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF):
                     stick_test_ballR = 1
                 else :
                     stick_test_ballR = 0
-                    
+            
+            
+            gait_graph.collect_stiction(mbs_data,Stiction_test_ballR,Force_slide_ballR,delta_x,delta_vx,Fx_mod, Force_stick_ballR,tsim)
                     
                 
             #Horizontal ground force
                 
             
             Fx = (Force_slide_ballR + Force_stick_ballR)
-            if(abs(Fz)>1000000000):
-                print("Events")
-                print(Fx)
-                print(tsim)
-                print(Stiction_test_ballR)
-                print(Fz)
-                
-            
 
 
             #stiction mode
                 
             Q_ballR, Qn_ballR = flip_flop_SR(stick_test_ballR,slide_test_ballR, Q_ballR, Qn_ballR)
             Stiction_prec_test_ballR=Q_ballR
-        
-        if(tsim>0.155):
-                print("Events")
-                print(tsim)
-                print(Fz)
-                print(VxF[3])
-                print( PxF[1] - x0_ballR)
-                print(x0_ballR)
+
         
         #no contact   
         else:
-            
             Fz =0
             Fx =0
             
             Q_ballR=1
             Qn_ballR=0
             Stiction_prec_test_ballR=0
+            
 
     #Contact model for external force on HEEL L
 
@@ -647,7 +653,7 @@ def user_ExtForces(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF):
     Fx_BallL = mbs_data.SWr[Force_BallL][1]
     Fz_BallL = mbs_data.SWr[Force_BallL][3]
     
-    
+
     
     # X = np.hstack([Fx_HeelR,Fx_HeelL,Fx_BallR,Fx_BallL])
     # Z = np.hstack([Fz_HeelR,Fz_HeelL,Fz_BallR,Fz_BallL])
@@ -666,6 +672,9 @@ def user_ExtForces(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF):
     MBsysPy.set_output_value(Fz_HeelL, 2, "external_force_Z")
     MBsysPy.set_output_value(Fz_BallR, 3, "external_force_Z")
     MBsysPy.set_output_value(Fz_BallL, 4, "external_force_Z")
+    
+    gait_graph.collect_ext(mbs_data,ixF,Fx,PxF[1],VxF[1],tsim)      
+
     return Swr
 
 
@@ -688,4 +697,4 @@ import TestworkR
 
 
 if __name__ == "__main__":
-    TestworkR.runtest(250e-6,0.19,c=False)
+    TestworkR.runtest(250e-6,0.8,c=False)

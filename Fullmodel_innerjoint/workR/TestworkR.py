@@ -54,6 +54,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__))) # the script is running fro
 import pandas as pd
 import time
 import shutil
+import numpy as np
 
 
 
@@ -65,6 +66,8 @@ def runtest(dt0,tf,c=False):
     mbs_data.process = 1
     mbs_part = Robotran.MbsPart(mbs_data)
     mbs_part.set_options(rowperm=1, verbose=1)
+    np.save("paramaters", np.array([dt0,tf]))
+
     mbs_part.run()
 
     # ===========================================================================
@@ -125,7 +128,7 @@ def runtest(dt0,tf,c=False):
     elapsed_time = time.time() - start_time
 
     # Convert the elapsed time to minutes and round to two decimal places
-    elapsed_time_minutes = round(elapsed_time / 60, 2)
+    elapsed_time_minutes = round(elapsed_time/60 , 3)
 
     # Print the elapsed time in minutes
     print(f"Time taken to run the line: {elapsed_time_minutes:.2f} minutes")

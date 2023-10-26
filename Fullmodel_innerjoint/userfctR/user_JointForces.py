@@ -20,6 +20,7 @@ import Neural_control_layer as neural
 import MBsysPy
 import matplotlib.pyplot as plt
 import numpy as np
+import gait_graph 
 
 ### Initial parameters :
     
@@ -149,7 +150,15 @@ time_keeper= np.zeros(1)
 stim_left = np.zeros(7)
 stim_right = np.zeros(7)
 
-elapsed_time=0
+elapsed_time1=0
+elapsed_time2=0
+elapsed_time3=0
+elapsed_time4=0
+
+flag_graph=True
+flag_initiated=False
+
+test1=0
 
 
 counter=0
@@ -275,6 +284,13 @@ def user_JointForces(mbs_data, tsim):
     global test4
     global test5
     global test6
+    global elapsed_time1
+    global elapsed_time2
+    global elapsed_time3
+    global elapsed_time4
+
+    global flag_graph
+
     
     #compute of the time step :
     
@@ -438,11 +454,15 @@ def user_JointForces(mbs_data, tsim):
                 Stance_memory_delayed = np.vstack([Stance_memory_delayed, [Stance_memory[-1-round((0.01/dt)),0], Stance_memory[-1-round((0.01/dt)),1], tsim]])[-max_ts:]
             else: 
                 Stance_memory_delayed[-1,2] = tsim
+                
     
     #### Obtention des stimulations
     if dt!=0 :
+
         StimL = neural.Feedback(tsim, dt, Stance_memory_delayed,f_m_memoryL, LDx_memory, RDx_memory, lce_memoryL, kneeL_q, kneeL_qd, theta_trunk_memory, dtheta_trunk_memory,0)
         StimR = neural.Feedback(tsim, dt, Stance_memory_delayed,f_m_memoryR, RDx_memory, LDx_memory, lce_memoryR, kneeR_q, kneeR_qd, theta_trunk_memory, dtheta_trunk_memory,1)
+                    
+
     # L = np.hstack([StimL,tsim])
     # R = np.hstack([StimR,tsim])
     # stim_left = StimL
@@ -454,6 +474,7 @@ def user_JointForces(mbs_data, tsim):
     
     #Lmtu update for each muscle
     
+
     lmtu_TA_L = muscle.lmtu_updateTA(ankleL_q, TA)
     lmtu_GAS_L = muscle.lmtu_updateGAS(ankleL_q,kneeL_q,GAS)
     lmtu_SOL_L = muscle.lmtu_updateSOL(ankleL_q, SOL)
@@ -470,6 +491,7 @@ def user_JointForces(mbs_data, tsim):
     lmtu_GLU_R = muscle.lmtu_updateGLU(hipR_q, GLU)
     lmtu_HFL_R = muscle.lmtu_updateHFL(hipR_q, HFL)
     
+
     if tsim == 0 :
 
         #TA
@@ -582,7 +604,7 @@ def user_JointForces(mbs_data, tsim):
     else:
         if dt!=0 :
 
-            
+
             #TA
             A_TA_L = u_f.low_filter(StimL[TA],tau,dt,A_prec_TA_L)
             act_memory_TA_L = np.vstack([act_memory_TA_L,[A_TA_L,round(tsim,10)]])[-max_ts:]
@@ -673,6 +695,7 @@ def user_JointForces(mbs_data, tsim):
             lmtc_memory_HFL_R =np.vstack([lmtc_memory_HFL_R,[lmtu_HFL_R,round(tsim,10)]])[-max_ts:]
             lce_HFL_R = muscle.integrateur2000(lce_prec_HFL_R, dt, 5, lmtc_memory_HFL_R[:,0], act_memory_HFL_R[:,0], tsim-dt, HFL,lmtc_memory_HFL_R[:,1])
             #lce_HFL_R = muscle.Runge_kutta4(lce_prec_HFL_R, dt, lmtc_memory_HFL_R[:,0], act_memory_HFL_R[:,0], tsim-dt, HFL,lmtc_memory_HFL_R[:,1])
+            
 
                 
         else :
@@ -726,6 +749,8 @@ def user_JointForces(mbs_data, tsim):
             A_HFL_R = A_prec_HFL_R
             lce_HFL_R = lce_prec_HFL_R
         
+        start=time.time()
+
         #TA
         Fm_TA_L = muscle.vce_compute(lce_TA_L, lmtu_TA_L, A_TA_L, TA)[1]
         Fm_TA_R = muscle.vce_compute(lce_TA_R, lmtu_TA_R, A_TA_R, TA)[1]
@@ -755,7 +780,7 @@ def user_JointForces(mbs_data, tsim):
         #HFL
         Fm_HFL_L = muscle.vce_compute(lce_HFL_L, lmtu_HFL_L, A_HFL_L, HFL)[1]
         Fm_HFL_R = muscle.vce_compute(lce_HFL_R, lmtu_HFL_R, A_HFL_R, HFL)[1]
-    
+
     #TA
     A_prec_TA_L = A_TA_L
     lce_prec_TA_L = lce_TA_L
@@ -875,7 +900,8 @@ def user_JointForces(mbs_data, tsim):
             lce_memoryR[-1,HFL]= lce_HFL_R
     
     #### calcul des torques
-    
+    #start=time.time()
+
     Torque_ankle_TA_L = muscle.torque_updateANKLE(ankleL_q,Fm_TA_L,TA)
     Torque_ankle_GAS_L = muscle.torque_updateANKLE(ankleL_q,Fm_GAS_L,GAS)
     Torque_knee_GAS_L =muscle.torque_updateKNEE(kneeL_q, Fm_GAS_L, GAS)
@@ -924,8 +950,17 @@ def user_JointForces(mbs_data, tsim):
     mbs_data.Qq[id_kneeR] = Torque_knee_R
     mbs_data.Qq[id_hipR] = - Torque_hip_R
     
-    
 
+
+    
+    #gait_graph.collect(mbs_data)
+    if(np.load("paramaters.npy")[1]==tsim-dt and flag_graph):
+        gait_graph.show_ext()
+        flag_graph=False 
+        
+        
+
+        
     return
 
 
@@ -938,4 +973,4 @@ import TestworkR
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(2,  os.path.join(parent_dir, "workR"))
 if __name__ == "__main__":
-    TestworkR.runtest(200e-6,1.8,c=False)
+    TestworkR.runtest(250e-7,0.001,c=False)
