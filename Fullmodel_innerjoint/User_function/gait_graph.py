@@ -39,7 +39,7 @@ def initiate():
     BallR=(np.zeros((3,l)))
     HeelL=np.zeros((3,l))
     HeelR=np.zeros((3,l))
-    BallR_stiction=np.zeros((10,l))
+    BallR_stiction=np.zeros((11,l))
     Px=np.zeros((4,l))
 
     
@@ -68,7 +68,7 @@ def collect_ext(mbs_data,type,fx,px,vx,tsim):
     if(type==mbs_data.extforce_id["Force_HeelR"]):
         HeelR[:,ti]=[fx,px,vx]    
 
-def collect_stiction(mbs_data,Stiction_test_ballR,Force_slide_ballR,delta_x,delta_vx,Fx_mod, Force_stick_ballR,d_z, Fz,  slide_test, stick_test, tsim):
+def collect_stiction(mbs_data,Stiction_test_ballR,Force_slide_ballR,delta_x,delta_vx,Fx_mod, Force_stick_ballR,d_z, Fz,  slide_test, stick_test,delta_test, tsim):
     global flag_initiated
     if (flag_initiated==False):
        initiate()
@@ -77,7 +77,7 @@ def collect_stiction(mbs_data,Stiction_test_ballR,Force_slide_ballR,delta_x,delt
     global t, dt, BallR_stiction
     ti= int(tsim/dt)
     
-    BallR_stiction[:,ti]=[Stiction_test_ballR, Force_slide_ballR,delta_x, delta_vx,Fx_mod, Force_stick_ballR, d_z, Fz, slide_test, stick_test]
+    BallR_stiction[:,ti]=[Stiction_test_ballR, Force_slide_ballR,delta_x, delta_vx,Fx_mod, Force_stick_ballR, d_z, Fz, slide_test, stick_test,delta_test]
 
     
       
@@ -296,6 +296,13 @@ def show_ext():
     plt.savefig(id)
     plt.close()   
     
+    id="plot_archive/detla x_test"
+    plt.plot(t, BallR_stiction[10], label="detla x_test")
+    plt.legend()
+    plt.title(id)
+    plt.savefig(id)
+    plt.close()  
+    
     
     id="plot_archive/stiction_ballr"
     plt.figure(figsize=(12, 6))
@@ -332,6 +339,19 @@ def show_ext():
 
 
 if __name__ == "__main__":
-    TestworkR.runtest(250e-7,1.8,c=False)
+    TestworkR.runtest(250e-7,1.8,c=False)    
+    
+    """ initiate()
+    BallR_stiction = np.load(os.getcwd()+"/numpy_archive/stiction_BallR.npy")
+    print(BallR_stiction)
+    
+    id="plot_archive/Force_stick_ballR"
+    print(t.shape,BallR_stiction[5].shape)
+    
+    plt.plot(t[10:], BallR_stiction[5,10:], label="Force_stick_ballR")
+    plt.legend()
+    plt.title(id)
+    plt.savefig(id)
+    plt.close()  """
 
     

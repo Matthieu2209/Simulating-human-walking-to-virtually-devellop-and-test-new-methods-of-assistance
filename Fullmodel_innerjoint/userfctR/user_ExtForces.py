@@ -64,6 +64,14 @@ x0_ballR = 0
 x0_heelR = 0
 
 
+Q=np.array([1,1,1,1])
+Qn=np.zeros(4)
+Stiction_test=np.zeros(4)
+Stiction_prec_test=np.zeros(4)
+prec_slide_test=np.zeros(4)
+prec_stick_test=np.zeros(4)
+
+x0 = np.zeros(4)
 
 flag_graph = True
 
@@ -178,6 +186,7 @@ def user_ExtForces(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF):
     Mx = 0.0
     My = 0.0
     Mz = 0.0
+    
     idpt = mbs_data.xfidpt[ixF]
     dxF = mbs_data.dpt[1:, idpt]
     
@@ -304,6 +313,7 @@ def GRF(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF, Q, Qn, Stiction_te
         #Static friction model
     
         if Stiction_test == 1:
+
             
             #resetting parameters
             Force_slide = 0
@@ -316,7 +326,8 @@ def GRF(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF, Q, Qn, Stiction_te
             delta_x = PxF[1] - x0
             delta_vx = VxF[1] / vmax
             
-            Fx_mod = -kx * delta_x * (1 + math.copysign(1, delta_x) * delta_vx)
+            Fx_mod =  kx * delta_x * (1 + math.copysign(1, delta_x) * delta_vx)
+            #Fx_mod = -kx * delta_x * (1 + math.copysign(1, delta_x) * delta_vx)
             
             if Fz < 0 :
                 Force_stick = Fx_mod  #Force stick
@@ -329,18 +340,16 @@ def GRF(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF, Q, Qn, Stiction_te
             else :
                 slide_test = 0
                 
+                
+ 
+                
 
         
         
         #Kinetic friction model
         else :
             #update x0 (PosFP)
-            
-            if Stiction_test == 1:
-                if old_Stiction == 0:
-                    x0=0#PxF[3]
-            else:
-                x0=0#PxF[3] 
+            x0=PxF[1] 
 
             #resetting parameters
             Force_stick = 0
@@ -355,12 +364,13 @@ def GRF(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF, Q, Qn, Stiction_te
             Force_slide = Fx_mod
             
             #determination of friction mode
-            if abs(VxF[1]) - v_limit <= 0:
+            if abs(VxF[1]) - v_limit < 0:
                 stick_test = 1
             else :
                 stick_test= 0
                 
-
+                
+        
                 
             
         #Horizontal ground force
@@ -385,10 +395,10 @@ def GRF(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF, Q, Qn, Stiction_te
     
     
     if(ixF==1):
-        gait_graph.collect_stiction(mbs_data, Stiction_test, Force_slide, delta_x, delta_vx,Fx_mod, Force_stick, d_z, Fz, slide_test, stick_test, tsim)
+        gait_graph.collect_stiction(mbs_data, Stiction_test, Force_slide, delta_x, delta_vx,Fx_mod, Force_stick, d_z, Fz, slide_test, stick_test,0, tsim)
 
     
-    return Fx, Fz, Q, Qn, Stiction_test , Stiction_prec_test,  x0 , prec_slide_test , prec_stick_test
+    return Fx, Fz, Q, Qn, Stiction_test , Stiction_prec_test,  x0 , prec_slide_test , prec_stick_test 
       
 
 
@@ -410,4 +420,4 @@ import TestworkR
 
 
 if __name__ == "__main__":
-    TestworkR.runtest(250e-7,0.9)
+    TestworkR.runtest(250e-7,0.6)
