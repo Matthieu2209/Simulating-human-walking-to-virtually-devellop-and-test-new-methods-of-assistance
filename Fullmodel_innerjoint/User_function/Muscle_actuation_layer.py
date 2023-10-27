@@ -454,5 +454,5 @@ import TestworkR
 
 
 if __name__ == "__main__":
-    TestworkR.runtest(250e-7,60.0,c=False)
+    TestworkR.runtest(250e-6,1.7,c=False)
     

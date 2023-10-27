@@ -33,11 +33,15 @@ Q_ballL=1
 Qn_ballL=0
 Stiction_test_ballL=0
 Stiction_prec_test_ballL=0 
+prec_slide_test_ballL=0
+prec_stick_test_ballL=0
 
 Q_heelL=1
 Qn_heelL=0
 Stiction_test_heelL=0
 Stiction_prec_test_heelL=0 
+prec_slide_test_heelL=0
+prec_stick_test_heelL=0
 
 x0_ballL = 0
 x0_heelL = 0
@@ -46,11 +50,15 @@ Q_ballR=1
 Qn_ballR=0
 Stiction_test_ballR=0
 Stiction_prec_test_ballR=0 
+prec_slide_test_ballR=0
+prec_stick_test_ballR=0
 
 Q_heelR=1
 Qn_heelR=0
 Stiction_test_heelR=0
 Stiction_prec_test_heelR=0 
+prec_slide_test_heelR=0
+prec_stick_test_heelR=0
 
 x0_ballR = 0
 x0_heelR = 0
@@ -134,24 +142,32 @@ def user_ExtForces(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF):
     global Stiction_test_ballL
     global Stiction_prec_test_ballL
     global x0_ballL
+    global prec_slide_test_ballL
+    global prec_stick_test_ballL
     
     global Q_heelL
     global Qn_heelL
     global Stiction_test_heelL
     global Stiction_prec_test_heelL
     global x0_heelL
+    global prec_slide_test_heelL
+    global prec_stick_test_heelL
     
     global Q_ballR
     global Qn_ballR
     global Stiction_test_ballR
     global Stiction_prec_test_ballR
     global x0_ballR
+    global prec_slide_test_ballR
+    global prec_stick_test_ballR
     
     global Q_heelR
     global Qn_heelR
     global Stiction_test_heelR
     global Stiction_prec_test_heelR
     global x0_heelR
+    global prec_slide_test_heelR
+    global prec_stick_test_heelR
     
     #Resetting variables
 
@@ -175,461 +191,49 @@ def user_ExtForces(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF):
     #Contact model for external force on BALL L
     
     if ixF == Force_BallL:
-        
-        #Contact model
+
         MBsysPy.set_output_value(PxF[3], 4, "pos_Z")
         MBsysPy.set_output_value(VxF[1], 4, "velocity_X")
         MBsysPy.set_output_value(VxF[3], 4, "velocity_Z")
-        d_z = PxF[3] -ground_limit
+                
+        #Contact model
+        Fx, Fz, Q_ballL, Qn_ballL, Stiction_test_ballL , Stiction_prec_test_ballL ,  x0_ballL , prec_slide_test_ballL, prec_stick_test_ballL = GRF(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF, Q_ballL, Qn_ballL, Stiction_test_ballL , Stiction_prec_test_ballL ,  x0_ballL ,prec_slide_test_ballL, prec_stick_test_ballL)
         
-        #Contact
-        if d_z >=0 :
-            
-            #Vertical ground force model
-                
-            if VxF[3]/vmax >= -1:
-                Fz = (kz * -d_z *(1+VxF[3]/vmax))
-            else :
-                Fz = 0
-            
-            #update stiction mode
-            old_Stiction_ballL = Stiction_test_ballL
-            Stiction_test_ballL=Stiction_prec_test_ballL
-            
-            #update x0 (PosFP)
-                
-            if Stiction_test_ballL == 1:
-                if old_Stiction_ballL == 0:
-                    x0_ballL=PxF[3]
-            else:
-                x0_ballL=PxF[3]
-        
-            #Static friction model
-        
-            if Stiction_test_ballL == 1:
-                
-                #resetting parameters
-                Force_slide_ballL = 0
-                stick_test_ballL = 0
-                
-                
-                #force compute
-                delta_x = PxF[1] - x0_ballL
-                delta_vx = VxF[1] / vmax
-                
-                Fx_mod = -kx * delta_x * (1 + math.copysign(1, delta_x) * delta_vx)
-                if Fz <0 :
-                    Force_stick_ballL = Fx_mod  #Force stick
-                else:
-                    Force_stick_ballL = 0
-                
-                #determination of friction mode
-                if abs(Force_stick_ballL)-abs(Fz*must) > 0:
-                    slide_test_ballL=1
-                else :
-                    slide_test_ballL=0
-            
-            
-            #Kinetic friction model
-            else :
-                
-                #resetting parameters
-                Force_stick_ballL = 0
-                slide_test_ballL =0
-                
-                
-                #force compute
-                if VxF[1] != 0 :
-                    Fx_mod = math.copysign(1, VxF[1]) * musl * Fz
-                else :
-                    Fx_mod = 0
-            
-                Force_slide_ballL = Fx_mod
-                
-                #determination of friction mode
-                if abs(VxF[1]) - v_limit <= 0:
-                    stick_test_ballL = 1
-                else :
-                    stick_test_ballL = 0
-                    
-                
-            #Horizontal ground force
-                
-            Fx = (Force_slide_ballL + Force_stick_ballL)
-            # MBsysPy.set_output_value(Force_slide_ballL, 4, "F_slide")
-            # MBsysPy.set_output_value(Force_stick_ballL, 4, "F_stick")
-            
-            #stiction mode
-                
-            Q_ballL, Qn_ballL = flip_flop_SR(stick_test_ballL,slide_test_ballL, Q_ballL, Qn_ballL)
-            Stiction_prec_test_ballL=Q_ballL
-            
-                     
-
-        
-        #no contact   
-        else:
-            
-            Fz =0
-            Fx =0
-            
-            Q_ballL=1
-            Qn_ballL=0
-            Stiction_prec_test_ballL=0
-            
-        
-        
-            
+          
 
     #Contact model for external force on BALL R
     
     if ixF == Force_BallR:
-                
-        # Modèle de contact
+        
         MBsysPy.set_output_value(PxF[3], 3, "pos_Z")
         MBsysPy.set_output_value(VxF[1], 3, "velocity_X")
         MBsysPy.set_output_value(VxF[3], 3, "velocity_Z")
-        d_z = PxF[3] -ground_limit
-        
-        #print(round(VxF[1],2), round(tsim,2))
-        #contact
-        delta_x=0
-        delta_vx=0
-        if d_z >=0 :
-            
-            #Vertical ground force model
-                
-            if VxF[3]/vmax >= -1:
-                Fz = (kz * -d_z *(1+VxF[3]/vmax))
-            else :
-                Fz = 0
-                
-    
-            #update stiction mode
-            old_Stiction_ballR = Stiction_test_ballR
-            Stiction_test_ballR=Stiction_prec_test_ballR
-            
-            #update x0 (PosFP)
-                
-            if Stiction_test_ballR == 1:
-                if old_Stiction_ballR == 0:
-                    x0_ballR=PxF[3]
-            else:
-                x0_ballR=PxF[3]
-        
-            #Static friction model
-        
-            if Stiction_test_ballR == 1:
-                
-                #resetting parameters
-                Force_slide_ballR = 0
-                stick_test_ballR = 0
-                
-                
-                #force compute
-                delta_x = PxF[1] - x0_ballR
-                delta_vx = VxF[1] / vmax
-                
-                Fx_mod = -kx * delta_x * (1 + math.copysign(1, delta_x) * delta_vx)
-                
-                if Fz <0 :
-                    Force_stick_ballR = Fx_mod  #Force stick
-                else:
-                    Force_stick_ballR = 0
-                
-                #determination of friction mode
-                if abs(Force_stick_ballR)-abs(Fz*must) > 0:
-                    slide_test_ballR=1
-                else :
-                    slide_test_ballR=0
-                    
-                    
+        gait_graph.collect_Px(PxF,tsim)
 
-                
-            
-            #Kinetic friction model
-            else :
-                
-                #resetting parameters
-                Force_stick_ballR = 0
-                slide_test_ballR =0
-                
-                
-                #force compute
-                if VxF[1] != 0 :
-                    Fx_mod = math.copysign(1, VxF[1]) * musl * Fz
-                else :
-                    Fx_mod = 0
-            
-                Force_slide_ballR = Fx_mod
-                
-                #determination of friction mode
-                if abs(VxF[1]) - v_limit <= 0:
-                    stick_test_ballR = 1
-                else :
-                    stick_test_ballR = 0
-            
-            
-            gait_graph.collect_stiction(mbs_data,Stiction_test_ballR,Force_slide_ballR,delta_x,delta_vx,Fx_mod, Force_stick_ballR,tsim)
-                    
-                
-            #Horizontal ground force
-                
-            
-            Fx = (Force_slide_ballR + Force_stick_ballR)
-
-
-            #stiction mode
-                
-            Q_ballR, Qn_ballR = flip_flop_SR(stick_test_ballR,slide_test_ballR, Q_ballR, Qn_ballR)
-            Stiction_prec_test_ballR=Q_ballR
-
-        
-        #no contact   
-        else:
-            Fz =0
-            Fx =0
-            
-            Q_ballR=1
-            Qn_ballR=0
-            Stiction_prec_test_ballR=0
-            
+        #Contact model
+        Fx, Fz, Q_ballR, Qn_ballR, Stiction_test_ballR, Stiction_prec_test_ballR ,  x0_ballR , prec_slide_test_ballR, prec_stick_test_ballR = GRF(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF, Q_ballR, Qn_ballR, Stiction_test_ballR , Stiction_prec_test_ballR ,  x0_ballR , prec_slide_test_ballR, prec_stick_test_ballR)
 
     #Contact model for external force on HEEL L
 
     if ixF == Force_HeelL:
+        
         MBsysPy.set_output_value(PxF[3], 2, "pos_Z")
         MBsysPy.set_output_value(VxF[1], 2, "velocity_X")
         MBsysPy.set_output_value(VxF[3], 2, "velocity_Z")
-        # Modèle de contact
         
-        d_z = PxF[3] -ground_limit
-        
-        #contact
-        if d_z >=0 :
-            
-            #Vertical ground force model
-                
-            if VxF[3]/vmax >= -1:
-                Fz = kz * -d_z *(1+VxF[3]/vmax)
-            else :
-                Fz = 0
-            
-            #update stiction mode
-            old_Stiction_heelL = Stiction_test_heelL
-            Stiction_test_heelL=Stiction_prec_test_heelL
-            
-            #update x0 (PosFP)
-                
-            if Stiction_test_heelL == 1:
-                if old_Stiction_heelL == 0:
-                    x0_heelL=PxF[3]
-            else:
-                x0_heelL=PxF[3]
-        
-            #Static friction model
-        
-            if Stiction_test_heelL == 1:
-                
-                #resetting parameters
-                Force_slide_heelL = 0
-                stick_test_heelL = 0
-                
-                
-                #force compute
-                delta_x = PxF[1] - x0_heelL
-                delta_vx = VxF[1] / vmax
-                
-                Fx_mod = -kx * delta_x * (1 + math.copysign(1, delta_x) * delta_vx)
-                if Fz <0 :
-                    Force_stick_heelL = Fx_mod  #Force stick
-                else:
-                    Force_stick_heelL = 0
-                
-                #determination of friction mode
-                if abs(Force_stick_heelL)-abs(Fz*must) > 0:
-                    slide_test_heelL=1
-                else :
-                    slide_test_heelL=0
-                
-            
-            #Kinetic friction model
-            else :
-                
-                #resetting parameters
-                Force_stick_heelL = 0
-                slide_test_heelL =0
-                
-                
-                #force compute
-                if VxF[1] != 0 :
-                    Fx_mod = math.copysign(1, VxF[1]) * musl * Fz
-                else :
-                    Fx_mod = 0
-            
-                Force_slide_heelL = Fx_mod
-                
-                #determination of friction mode
-                if abs(VxF[1]) - v_limit <= 0:
-                    stick_test_heelL = 1
-                else :
-                    stick_test_heelL = 0
-                    
-                
-            #Horizontal ground force
-                
-            Fx = Force_slide_heelL + Force_stick_heelL
+        #Contact model
+        Fx, Fz, Q_heelL, Qn_heelL, Stiction_test_heelL, Stiction_prec_test_heelL ,  x0_heelL , prec_slide_test_heelL, prec_stick_test_heelL  = GRF(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF, Q_heelL, Qn_heelL, Stiction_test_heelL , Stiction_prec_test_heelL ,  x0_heelL , prec_slide_test_heelL , prec_stick_test_heelL)
 
-            #stiction mode
-                
-            Q_heelL, Qn_heelL = flip_flop_SR(stick_test_heelL,slide_test_heelL, Q_heelL, Qn_heelL)
-            Stiction_prec_test_heelL=Q_heelL
-        
-        #no contact   
-        else:
-            
-            Fz =0
-            Fx =0
-            
-            Q_heelL=1
-            Qn_heelL=0
-            Stiction_prec_test_heelL=0
-            
-
+    
     #Contact model for external force on HEEL R
 
     if ixF == Force_HeelR:
+        
         MBsysPy.set_output_value(PxF[3], 1, "pos_Z")
         MBsysPy.set_output_value(VxF[1], 1, "velocity_X")
         MBsysPy.set_output_value(VxF[3], 1, "velocity_Z")
-        # Modèle de contact
-        
-        d_z = PxF[3] -ground_limit
-        
-        #contact
-        if d_z >=0 :
-            
-            #Vertical ground force model
-                
-            if VxF[3]/vmax >= -1:
-                Fz = (kz * -d_z *(1+VxF[3]/vmax))
-            else :
-                Fz = 0
-            
-            #update stiction mode
-            old_Stiction_heelR = Stiction_test_heelR
-            Stiction_test_heelR=Stiction_prec_test_heelR
-            
-            #update x0 (PosFP)
-                
-            if Stiction_test_heelR == 1:
-                if old_Stiction_heelR == 0:
-                    x0_heelR=PxF[3]
-            else:
-                x0_heelR=PxF[3]
-        
-            #Static friction model
-        
-            if Stiction_test_heelR == 1:
-                
-                #resetting parameters
-                Force_slide_heelR = 0
-                stick_test_heelR = 0
-                
-                
-                #force compute
-                delta_x = PxF[1] - x0_heelR
-                delta_vx = VxF[1] / vmax
-                
-                Fx_mod = -kx * delta_x * (1 + math.copysign(1, delta_x) * delta_vx)
-                if Fz <0 :
-                    Force_stick_heelR = Fx_mod  #Force stick
-                else:
-                    Force_stick_heelR = 0
-                
-                #determination of friction mode
-                if abs(Force_stick_heelR)-abs(Fz*must) > 0:
-                    slide_test_heelR=1
-                else :
-                    slide_test_heelR=0
-                
-            
-            #Kinetic friction model
-            else :
-                
-                #resetting parameters
-                Force_stick_heelR = 0
-                slide_test_heelR =0
-                
-                
-                #force compute
-                if VxF[1] != 0 :
-                    Fx_mod = math.copysign(1, VxF[1]) * musl * Fz
-                else :
-                    Fx_mod = 0
-            
-                Force_slide_heelR = Fx_mod
-                
-                #determination of friction model
-                if abs(VxF[1]) - v_limit <= 0:
-                    stick_test_heelR = 1
-                else :
-                    stick_test_heelR = 0
-                    
-                
-            #Horizontal ground force
-                
-            Fx = (Force_slide_heelR + Force_stick_heelR)
- 
-            #stiction mode
-                
-            Q_heelR, Qn_heelR = flip_flop_SR(stick_test_heelR,slide_test_heelR, Q_heelR, Qn_heelR)
-            Stiction_prec_test_heelR=Q_heelR
-        
-        #no contact   
-        else:
-            
-            Fz =0
-            Fx =0
-
-            Q_heelR=1
-            Qn_heelR=0
-            Stiction_prec_test_heelR=0
-    
-    
-    """
-    global data_ballR
-
-    
-    if(ixF == Force_BallR and tsim < 0.3 and tsim > 0.01):
-
-        data_ballR=np.append(data_ballR,np.array([[Fx],[Fz],[PxF[3] -ground_limit],[tsim]]),axis=1)
-        
-    
-    global data_heelR
-    if(ixF == Force_HeelR and  tsim < 0.3 and tsim > 0.01):
-        data_heelR=np.append(data_heelR,np.array([[Fx],[Fz],[PxF[3] -ground_limit],[tsim]]),axis=1)
-
-     global flag_graph
-    if(tsim>0.3 and flag_graph):
-        import matplotlib.pyplot as plt
-        
-        id="plot_archive/multisources in events for ball and heel "
-        plt.plot(data_ballR[3,:],data_ballR[2,:],label="ballR d_z")
-        plt.plot(data_heelR[3,:],data_heelR[2,:],label="heelR d_z")
-        plt.plot(data_ballR[3,:],data_ballR[1,:],label="ballR fz")
-        plt.plot(data_heelR[3,:],data_heelR[1,:],label="heelR fz")
-        plt.plot(data_ballR[3,:],data_ballR[0,:],label="ballR fx")
-        plt.plot(data_heelR[3,:],data_heelR[0,:],label="heelR fx")
-        plt.legend()
-        plt.title(id)
-        plt.savefig(id)
-        plt.close()
-        
-
-    
-        
-        flag_graph=False """
+        #Contact model
+        Fx, Fz, Q_heelR, Qn_heelR, Stiction_test_heelR, Stiction_prec_test_heelR ,  x0_heelR , prec_slide_test_heelR , prec_stick_test_heelR  = GRF(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF, Q_heelR, Qn_heelR, Stiction_test_heelR , Stiction_prec_test_heelR ,  x0_heelR , prec_slide_test_heelR , prec_stick_test_heelR)
 
 
 
@@ -638,8 +242,6 @@ def user_ExtForces(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF):
     Swr = mbs_data.SWr[ixF]
     Swr[1:] = [Fx, Fy, Fz, Mx, My, Mz, dxF[0], dxF[1], dxF[2]]
     
-    
-
     
     Fx_HeelR = mbs_data.SWr[Force_HeelR][1]
     Fz_HeelR = mbs_data.SWr[Force_HeelR][3]
@@ -653,14 +255,6 @@ def user_ExtForces(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF):
     Fx_BallL = mbs_data.SWr[Force_BallL][1]
     Fz_BallL = mbs_data.SWr[Force_BallL][3]
     
-
-    
-    # X = np.hstack([Fx_HeelR,Fx_HeelL,Fx_BallR,Fx_BallL])
-    # Z = np.hstack([Fz_HeelR,Fz_HeelL,Fz_BallR,Fz_BallL])
-    
-    
-    # fichier_X = np.vstack([fichier_X,[X]])
-    # fichier_Z = np.vstack([fichier_Z,[Z]])
     
     MBsysPy.set_output_value(Fx_HeelR, 1, "external_force_X")
     MBsysPy.set_output_value(Fx_HeelL, 2, "external_force_X")
@@ -677,6 +271,130 @@ def user_ExtForces(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF):
 
     return Swr
 
+def GRF(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF, Q, Qn, Stiction_test , Stiction_prec_test,  x0 , prec_slide_test , prec_stick_test):
+
+    #Contact model
+    d_z = PxF[3] -ground_limit
+    delta_x = 0
+    delta_vx = 0
+    Force_slide = 0
+    Force_stick = 0
+    Fx_mod = 0
+    Fz = 0
+    slide_test =0
+    stick_test = 0
+    
+    #Contact
+    if d_z >=0 :
+        
+        #Vertical ground force model
+            
+        if VxF[3]/vmax >= -1:
+            Fz = (kz * -d_z *(1+VxF[3]/vmax))
+        else :
+            Fz = 0
+        
+        #update stiction mode
+        old_Stiction = Stiction_test
+        Stiction_test =Stiction_prec_test
+        
+
+    
+        #Static friction model
+    
+        if Stiction_test == 1:
+            
+            #resetting parameters
+            Force_slide = 0
+            stick_test = 0
+            
+            #force compute
+            delta_x = PxF[1] - x0
+            delta_vx = VxF[1] / vmax
+            
+            Fx_mod = -kx * delta_x * (1 + math.copysign(1, delta_x) * delta_vx)
+            
+            if Fz < 0 :
+                Force_stick = Fx_mod  #Force stick
+            else:
+                Force_stick = 0
+            
+            #determination of friction mode
+            if abs(Force_stick)-abs(Fz*must) > 0:
+                slide_test_actual = 1
+            else :
+                slide_test_actual = 0
+                
+            if(slide_test_actual > prec_slide_test):
+                slide_test = 1
+            else:
+                slide_test = 0
+            
+            prec_slide_test = slide_test_actual
+        
+        
+        #Kinetic friction model
+        else :
+            #update x0 (PosFP)
+            
+            if Stiction_test == 1:
+                if old_Stiction == 0:
+                    x0=PxF[3]
+            else:
+                x0=PxF[3]
+
+            
+            #resetting parameters
+            Force_stick = 0
+            slide_test =0
+            
+            #force compute
+            if VxF[1] != 0 :
+                Fx_mod = math.copysign(1, VxF[1]) * musl * Fz
+            else :
+                Fx_mod = 0
+        
+            Force_slide = Fx_mod
+            
+            #determination of friction mode
+            if abs(VxF[1]) - v_limit <= 0:
+                stick_test_actual = 1
+            else :
+                stick_test_actual = 0
+                
+            if(stick_test_actual > prec_stick_test):
+                stick_test = 1
+            else:
+                stick_test = 0
+            
+            prec_stick_test = stick_test_actual
+                
+            
+        #Horizontal ground force
+        Fx = (Force_slide + Force_stick )
+
+        
+        #stiction mode
+        Q, Qn = flip_flop_SR(stick_test,slide_test, Q, Qn)
+        Stiction_prec_test=Q
+        
+    
+    #no contact   
+    else:
+        
+        Fz =0
+        Fx =0
+        
+        Q=1
+        Qn=0
+        Stiction_prec_test=0
+    
+    if(ixF==1):
+        gait_graph.collect_stiction(mbs_data, Stiction_test, Force_slide, delta_x, delta_vx,Fx_mod, Force_stick, d_z, Fz, slide_test, stick_test, tsim)
+
+    
+    return Fx, Fz, Q, Qn, Stiction_test , Stiction_prec_test,  x0 , prec_slide_test , prec_stick_test
+      
 
 
 
@@ -697,4 +415,4 @@ import TestworkR
 
 
 if __name__ == "__main__":
-    TestworkR.runtest(250e-6,0.8,c=False)
+    TestworkR.runtest(250e-6,1.8)

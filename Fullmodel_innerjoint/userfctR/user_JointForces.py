@@ -290,6 +290,12 @@ def user_JointForces(mbs_data, tsim):
     global elapsed_time4
 
     global flag_graph
+    
+    global flag_initiated
+    if (flag_initiated==False):
+       flag_initiated=True
+       dt=np.load("paramaters.npy")[0]       
+       Stance_memory_delayed = np.zeros((round((0.1/dt)),3))
 
     
     #compute of the time step :
@@ -299,6 +305,7 @@ def user_JointForces(mbs_data, tsim):
     # print(tsim,dt)
     if tsim!=0:
         time_keeper = np.append(time,tsim)
+        
     
     #### sensors index :
         
@@ -973,4 +980,4 @@ import TestworkR
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(2,  os.path.join(parent_dir, "workR"))
 if __name__ == "__main__":
-    TestworkR.runtest(250e-7,0.001,c=False)
+    TestworkR.runtest(250e-6,1.6,c=False)

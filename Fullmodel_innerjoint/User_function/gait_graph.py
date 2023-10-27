@@ -26,11 +26,12 @@ HeelL=np.zeros((0))
 HeelR=np.zeros((0))
 
 BallR_stiction=np.zeros(0)
+Px=np.zeros(0)
 
 #HeelL_Px=np.zeros((0,2))
 
 def initiate():
-    global dt, t, BallL, BallR, HeelL, HeelR, BallR_stiction
+    global dt, t, BallL, BallR, HeelL, HeelR, BallR_stiction, Px
     dt,tsim=np.load("paramaters.npy")
     t = np.arange(0, tsim + dt, dt)  # Create the time array directly
     l = len(t)  # Calculate the length based on t
@@ -38,7 +39,9 @@ def initiate():
     BallR=(np.zeros((3,l)))
     HeelL=np.zeros((3,l))
     HeelR=np.zeros((3,l))
-    BallR_stiction=np.zeros((6,l))
+    BallR_stiction=np.zeros((10,l))
+    Px=np.zeros((4,l))
+
     
     
 
@@ -65,7 +68,7 @@ def collect_ext(mbs_data,type,fx,px,vx,tsim):
     if(type==mbs_data.extforce_id["Force_HeelR"]):
         HeelR[:,ti]=[fx,px,vx]    
 
-def collect_stiction(mbs_data,Stiction_test_ballR,Force_slide_ballR,delta_x,delta_vx,Fx_mod, Force_stick_ballR,tsim):
+def collect_stiction(mbs_data,Stiction_test_ballR,Force_slide_ballR,delta_x,delta_vx,Fx_mod, Force_stick_ballR,d_z, Fz,  slide_test, stick_test, tsim):
     global flag_initiated
     if (flag_initiated==False):
        initiate()
@@ -74,10 +77,20 @@ def collect_stiction(mbs_data,Stiction_test_ballR,Force_slide_ballR,delta_x,delt
     global t, dt, BallR_stiction
     ti= int(tsim/dt)
     
-    BallR_stiction[:,ti]=[Stiction_test_ballR,Force_slide_ballR,delta_x,delta_vx,Fx_mod, Force_stick_ballR]
+    BallR_stiction[:,ti]=[Stiction_test_ballR, Force_slide_ballR,delta_x, delta_vx,Fx_mod, Force_stick_ballR, d_z, Fz, slide_test, stick_test]
 
     
-        
+      
+def collect_Px(PxF,tsim):
+    global flag_initiated
+    if (flag_initiated==False):
+       initiate()
+       flag_initiated=True
+       
+    global t, dt, Px
+    ti= int(tsim/dt)
+    
+    Px[:,ti]=PxF
 
 
         
@@ -85,7 +98,7 @@ def collect_stiction(mbs_data,Stiction_test_ballR,Force_slide_ballR,delta_x,delt
    
 
 def show_ext():
-    global t, dt,  BallL, BallR, HeelL, HeelR, BallR_stiction
+    global t, dt,  BallL, BallR, HeelL, HeelR, BallR_stiction, Px
     
     
     #BallL
@@ -226,14 +239,14 @@ def show_ext():
     plt.savefig(id)
     plt.close() 
 
-    id="plot_archive/delta_x"
+    id="plot_archive/delta_x BallR"
     plt.plot(t, BallR_stiction[2], label="delta_x")
     plt.legend()
     plt.title(id)
     plt.savefig(id)
     plt.close() 
     
-    id="plot_archive/delta_vx"
+    id="plot_archive/delta_vx BallR"
     plt.plot(t, BallR_stiction[3], label="delta_vx")
     plt.legend()
     plt.title(id)
@@ -254,9 +267,71 @@ def show_ext():
     plt.savefig(id)
     plt.close() 
     
+    id="plot_archive/BallR D_Z"
+    plt.plot(t, BallR_stiction[6], label="BallR D_Z")
+    plt.legend()
+    plt.title(id)
+    plt.savefig(id)
+    plt.close() 
+    
+    id="plot_archive/BallR Fz"
+    plt.plot(t, BallR_stiction[7], label="BallR Fz")
+    plt.legend()
+    plt.title(id)
+    plt.savefig(id)
+    plt.close() 
+  
+    id="plot_archive/BallR slide test"
+    plt.plot(t, BallR_stiction[8], label="BallR slide test")
+    plt.legend()
+    plt.title(id)
+    plt.savefig(id)
+    plt.close()   
+    
+    
+    id="plot_archive/BallR stick test"
+    plt.plot(t, BallR_stiction[9], label="BallR stick test")
+    plt.legend()
+    plt.title(id)
+    plt.savefig(id)
+    plt.close()   
+    
+    
+    id="plot_archive/stiction_ballr"
+    plt.figure(figsize=(12, 6))
+    plt.plot(t, BallR_stiction[0], label="Stiction_test_ballR")
+    plt.plot(t, BallR_stiction[1], label="Force_slide_ballR")
+    plt.plot(t, BallR_stiction[2], label="delta_x")
+    plt.plot(t, BallR_stiction[3], label="delta_vx")
+    plt.plot(t, BallR_stiction[4], label="Fx_mod")
+    plt.plot(t, BallR_stiction[5], label="Force_stick_ballR")
+    plt.plot(t, BallR_stiction[6], label="BallR D_Z")
+    #plt.xlim([0.2510,0.2525])
+    plt.legend()
+    plt.title(id)
+    plt.savefig(id)
+    plt.close() 
+    
+    
+    
+    id="plot_archive/Px"
+    plt.plot(t, Px[1], label="Px 1")
+    plt.plot(t, Px[3], label="Px 3")
+    plt.legend()
+    plt.title(id)
+    plt.savefig(id)
+    plt.close() 
+    
+    
+    np.save("numpy_archive/stiction_BallR", BallR_stiction)
+    np.save("numpy_archive/BallR", BallR)
+    np.save("numpy_archive/BallL", BallL)
+    np.save("numpy_archive/HeelL", HeelL)
+    np.save("numpy_archive/HeelR", HeelR)
+
 
 
 if __name__ == "__main__":
-    TestworkR.runtest(250e-7,0.6,c=False)
+    TestworkR.runtest(250e-7,1.8,c=False)
 
     
