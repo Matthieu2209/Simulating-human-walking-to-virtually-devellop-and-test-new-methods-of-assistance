@@ -88,9 +88,10 @@ def user_dirdyn_loop(mbs_data, mbs_dirdyn):
     id_hip = mbs_data.sensor_id["Sensor_hip"]
     
     id_BallL = mbs_data.sensor_id["Sensor_BallL"]
-    id_HeelL = mbs_data.sensor_id["Sensor_HeelL"]
     id_BallR = mbs_data.sensor_id["Sensor_BallR"]
+    id_HeelL = mbs_data.sensor_id["Sensor_HeelL"]
     id_HeelR = mbs_data.sensor_id["Sensor_HeelR"]
+    
     
     # Computing the sensors
     

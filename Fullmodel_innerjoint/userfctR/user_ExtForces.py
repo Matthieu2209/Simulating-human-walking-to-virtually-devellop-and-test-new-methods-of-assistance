@@ -21,7 +21,8 @@ sys.path.insert(1,  os.path.join(parent_dir, "userfctR"))
 import gait_graph
 
 ground_limit = 0
-vmax = 0.03
+v_gx_max = 0.03
+v_gz_max = 0.03
 kz = 78480
 kx = 7848
 must = 0.9
@@ -64,14 +65,15 @@ x0_ballR = 0
 x0_heelR = 0
 
 
-Q=np.array([1,1,1,1])
-Qn=np.zeros(4)
-Stiction_test=np.zeros(4)
-Stiction_prec_test=np.zeros(4)
-prec_slide_test=np.zeros(4)
-prec_stick_test=np.zeros(4)
-
-x0 = np.zeros(4)
+Q=np.array([1,1,1,1,1])
+Qn=np.zeros(5)
+Stiction=np.array([0,0,0,0,0])
+Stiction_test=np.zeros(5)
+Stiction_prec_test=np.zeros(5)
+Sliding=np.zeros(5)
+Sticking=np.zeros(5)
+x0 = np.zeros(5)
+PosFP = np.zeros(5)
 
 flag_graph = True
 
@@ -91,6 +93,14 @@ def flip_flop_SR(S, R, Q, Qn):
         print("Invalid input: S and R cannot be both 1")
     return Q, Qn
 
+def sr_flip_flop(S, R, current_state):
+    if S and not R:  # Set
+        return True
+    elif R and not S:  # Reset
+        return False
+    else:  # No change
+        return current_state
+    
 
 
 def user_ExtForces(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF):
@@ -144,42 +154,9 @@ def user_ExtForces(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF):
         This array is a specific line of MbsData.SWr.
     """
     
-    #global variable
-    
-    global Q_ballL
-    global Qn_ballL
-    global Stiction_test_ballL
-    global Stiction_prec_test_ballL
-    global x0_ballL
-    global prec_slide_test_ballL
-    global prec_stick_test_ballL
-    
-    global Q_heelL
-    global Qn_heelL
-    global Stiction_test_heelL
-    global Stiction_prec_test_heelL
-    global x0_heelL
-    global prec_slide_test_heelL
-    global prec_stick_test_heelL
-    
-    global Q_ballR
-    global Qn_ballR
-    global Stiction_test_ballR
-    global Stiction_prec_test_ballR
-    global x0_ballR
-    global prec_slide_test_ballR
-    global prec_stick_test_ballR
-    
-    global Q_heelR
-    global Qn_heelR
-    global Stiction_test_heelR
-    global Stiction_prec_test_heelR
-    global x0_heelR
-    global prec_slide_test_heelR
-    global prec_stick_test_heelR
+
     
     #Resetting variables
-
     Fx = 0.0
     Fy = 0.0
     Fz = 0.0
@@ -196,8 +173,193 @@ def user_ExtForces(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF):
     Force_HeelL = mbs_data.extforce_id["Force_HeelL"]
     Force_BallR = mbs_data.extforce_id["Force_BallR"]
     Force_HeelR = mbs_data.extforce_id["Force_HeelR"]
+
+    
+    global Q
+    global Qn
+    global Stiction
+    global Stiction_test
+    global Stiction_prec_test
+    global Sliding
+    global Sticking
+    global x0
+    global PosFP
+    
+    MBsysPy.set_output_value(PxF[3], ixF, "pos_Z")
+    MBsysPy.set_output_value(VxF[1], ixF, "velocity_X")
+    MBsysPy.set_output_value(VxF[3], ixF, "velocity_Z")
+    
+    Fx_sticking = 0
+    Fx_sliding  = 0
+    test_slide  = 0
+    test_stick  = 0
+    dx=0
+    dvx=0
+    
+    #PxF z are negative for positive 
+    
+    """ 
+    v_gx_max = 0.03
+    v_gz_max = 0.03
+    kz = 78480
+    kx = 7848
+    must = 0.9
+    musl = 0.8
+    v_limit = 0.01 """
+ 
+        
+    
+
+    
+        
+    v_gx_max = 0.015
+    v_gz_max = 0.03
+    kz = 78480
+    kx = 7848
+    must = 0.9
+    musl = 0.8
+    v_limit = 0.01
+    
+    dz = -(PxF[3])
+
+    if(dz < 0):
+    
+        #print(ixF,dz,VxF[3])
+        dz_k=    dz*kz 
+        vz_max = -VxF[3]/v_gz_max
+        
+        if(vz_max<1):
+            Fz= - dz_k*(1-vz_max)
+        else:
+            Fz=0
+        
+        dx  = (PxF[1]-PosFP[ixF])*kx
+            
+        if(Stiction[ixF]==1):
+            dx  = (PxF[1]-PosFP[ixF])*kx
+            #print(dx,tsim)
+            dvx = VxF[1]/v_gx_max
+            
+            
+            Fx_sticking = -dx *(1 + math.copysign(1, dx) * dvx) 
+            
+            if(Fz==0):
+                Fx_sticking=0
+                
+            test_slide=abs(Fx_sticking) - abs(Fz*must)
+            
+            if(test_slide>0):
+                Sliding[ixF]=1
+            else:
+                Sliding[ixF]=0
+                
+                
+            Sticking[ixF]=0
+                
+                    
+        
+        else:
+            Fx_sliding = -math.copysign(1,VxF[1])*Fz*musl
+            
+            test_stick=(abs(VxF[1])-v_limit)
+            
+            if(test_stick<0):
+                Sticking[ixF]=1
+            else:
+                Sticking[ixF]=0                
+                   
+            PosFP[ixF]=PxF[1]
+            Sliding[ixF]=0
+            
+        
+             
+        Fx=Fx_sliding+Fx_sticking
+        
+        Stiction[ixF]= sr_flip_flop(Sticking[ixF],Sliding[ixF],Stiction[ixF])
+
+    else:
+        Stiction[ixF]=0
+        Fx = 0
+        Fz = 0 
+        
+    
+        
+                
+        
+
+    # Concatenating force, torque and force application point to returned array.
+    # This must not be modified.
+    Swr = mbs_data.SWr[ixF]
+    Swr[1:] = [Fx, Fy, -Fz, Mx, My, Mz, dxF[0], dxF[1], -dxF[2]]
     
     
+    Fx_HeelR = mbs_data.SWr[Force_HeelR][1]
+    Fz_HeelR = mbs_data.SWr[Force_HeelR][3]
+    
+    Fx_HeelL = mbs_data.SWr[Force_HeelL][1]
+    Fz_HeelL = mbs_data.SWr[Force_HeelL][3]
+    
+    Fx_BallR = mbs_data.SWr[Force_BallR][1]
+    Fz_BallR = mbs_data.SWr[Force_BallR][3]
+    
+    Fx_BallL = mbs_data.SWr[Force_BallL][1]
+    Fz_BallL = mbs_data.SWr[Force_BallL][3]
+    
+    
+    MBsysPy.set_output_value(Fx_HeelR, 1, "external_force_X")
+    MBsysPy.set_output_value(Fx_HeelL, 2, "external_force_X")
+    MBsysPy.set_output_value(Fx_BallR, 3, "external_force_X")
+    MBsysPy.set_output_value(Fx_BallL, 4, "external_force_X")
+
+
+    MBsysPy.set_output_value(Fz_HeelR, 1, "external_force_Z")
+    MBsysPy.set_output_value(Fz_HeelL, 2, "external_force_Z")
+    MBsysPy.set_output_value(Fz_BallR, 3, "external_force_Z")
+    MBsysPy.set_output_value(Fz_BallL, 4, "external_force_Z")
+    
+    gait_graph.collect(ixF,PxF[1],dz,VxF[1],VxF[3],Sticking[ixF],Sliding[ixF],Stiction[ixF] if (dz<= 0) else -1,PosFP[ixF],dx,dvx,Fx,Fz,Fx_sliding,Fx_sticking,test_slide,test_stick,tsim)
+
+    return Swr
+
+
+
+
+
+
+# (c) Universite catholique de Louvain, 2020
+import sys
+
+import os
+import time
+# Get the directory where your script is located
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+sys.path.insert(0,  os.path.join(parent_dir, "User_function"))
+sys.path.insert(1,  os.path.join(parent_dir, "userfctR"))
+sys.path.insert(2,  os.path.join(parent_dir, "workR"))
+
+
+import TestworkR
+
+
+if __name__ == "__main__":
+    TestworkR.runtest(250e-7,3.9)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"""     
     #Contact model for external force on BALL L
     
     if ixF == Force_BallL:
@@ -247,39 +409,11 @@ def user_ExtForces(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF):
 
 
 
-    # Concatenating force, torque and force application point to returned array.
-    # This must not be modified.
-    Swr = mbs_data.SWr[ixF]
-    Swr[1:] = [Fx, Fy, Fz, Mx, My, Mz, dxF[0], dxF[1], dxF[2]]
-    
-    
-    Fx_HeelR = mbs_data.SWr[Force_HeelR][1]
-    Fz_HeelR = mbs_data.SWr[Force_HeelR][3]
-    
-    Fx_HeelL = mbs_data.SWr[Force_HeelL][1]
-    Fz_HeelL = mbs_data.SWr[Force_HeelL][3]
-    
-    Fx_BallR = mbs_data.SWr[Force_BallR][1]
-    Fz_BallR = mbs_data.SWr[Force_BallR][3]
-    
-    Fx_BallL = mbs_data.SWr[Force_BallL][1]
-    Fz_BallL = mbs_data.SWr[Force_BallL][3]
-    
-    
-    MBsysPy.set_output_value(Fx_HeelR, 1, "external_force_X")
-    MBsysPy.set_output_value(Fx_HeelL, 2, "external_force_X")
-    MBsysPy.set_output_value(Fx_BallR, 3, "external_force_X")
-    MBsysPy.set_output_value(Fx_BallL, 4, "external_force_X")
 
 
-    MBsysPy.set_output_value(Fz_HeelR, 1, "external_force_Z")
-    MBsysPy.set_output_value(Fz_HeelL, 2, "external_force_Z")
-    MBsysPy.set_output_value(Fz_BallR, 3, "external_force_Z")
-    MBsysPy.set_output_value(Fz_BallL, 4, "external_force_Z")
-    
-    gait_graph.collect_ext(mbs_data,ixF,Fx,PxF[1],VxF[1],tsim)      
 
-    return Swr
+
+
 
 def GRF(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF, Q, Qn, Stiction_test , Stiction_prec_test,  x0 , prec_slide_test , prec_stick_test):
 
@@ -326,7 +460,7 @@ def GRF(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF, Q, Qn, Stiction_te
             delta_x = PxF[1] - x0
             delta_vx = VxF[1] / vmax
             
-            Fx_mod =  kx * delta_x * (1 + math.copysign(1, delta_x) * delta_vx)
+            Fx_mod =  kx * delta_x * (1 + math.copysign(1, delta_x * delta_vx))
             #Fx_mod = -kx * delta_x * (1 + math.copysign(1, delta_x) * delta_vx)
             
             if Fz < 0 :
@@ -402,22 +536,69 @@ def GRF(PxF, RxF, VxF, OMxF, AxF, OMPxF, mbs_data, tsim, ixF, Q, Qn, Stiction_te
       
 
 
+   v_gx_max = 0.015
+    v_gz_max = 0.010
+    kz = 78480*3
+    kx = 7848
+    must = 0.9
+    musl = 0.8
+    v_limit = 0.01
+    
+    dz = -(PxF[3])
 
-# (c) Universite catholique de Louvain, 2020
-import sys
+    if(dz < 0):
 
-import os
-import time
-# Get the directory where your script is located
-parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    
+        #print(ixF,dz,VxF[3])
+        dz_k=    dz*kz 
+        vz_max = -VxF[3]/v_gz_max
+        
+        if(vz_max<1):
+            Fz= - dz_k*(1-vz_max)
+        else:
+            Fz=0
+        
+        dx  = (PxF[1]-PosFP[ixF])*kx
+            
+        if(Stiction[ixF]==1):
+            dx  = (PxF[1]-PosFP[ixF])*kx
+            dvx = VxF[1]/v_gx_max
+            Fx_sticking = -dx *(1 + math.copysign(1, dx) * dvx) 
+            
+            if(Fz==0):
+                Fx_sticking=0   
+                 
+            test_slide=abs(Fx_sticking) - abs(Fz*must)
+            if(test_slide>0):
+                Sliding[ixF]=1
+            else:
+                Sliding[ixF]=0
+            Sticking[ixF]=0         
+                    
+        
+        else:
+            Fx_sliding = -math.copysign(1,VxF[1])*Fz*musl*1.4
+            
+            test_stick=(abs(VxF[1]*0.1)-v_limit*25)
+            
+            if(test_stick<0):
+                Sticking[ixF]=1
+                    
+            else:
+                Sticking[ixF]=0                
+                   
+            PosFP[ixF]=PxF[1]
+            Sliding[ixF]=0
+            
+        
+             
+        Fx=Fx_sliding+Fx_sticking
+        
+        Stiction[ixF]= sr_flip_flop(Sticking[ixF],Sliding[ixF],Stiction[ixF])
 
-sys.path.insert(0,  os.path.join(parent_dir, "User_function"))
-sys.path.insert(1,  os.path.join(parent_dir, "userfctR"))
-sys.path.insert(2,  os.path.join(parent_dir, "workR"))
+    else:
+        Stiction[ixF]=0
+        Fx = 0
+        Fz = 0
 
-
-import TestworkR
-
-
-if __name__ == "__main__":
-    TestworkR.runtest(250e-7,0.6)
+"""

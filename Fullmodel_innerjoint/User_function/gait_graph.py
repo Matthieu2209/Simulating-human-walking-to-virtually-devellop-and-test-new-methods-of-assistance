@@ -18,8 +18,194 @@ import TestworkR
 
 
 
+
+
+
+flag_initiated=False
 t=np.zeros((0))
 dt=0
+
+PxA=0
+PzA = 0
+VxA = 0
+VzA = 0
+StickingA = 0
+SlidingA = 0
+StictionA = 0
+PosFPA = 0
+dxA = 0
+dvxA = 0
+FxA = 0
+FzA = 0
+Fx_slidingA = 0
+Fx_stickingA = 0
+test_slideA= 0
+test_stickA= 0
+
+def initiate():
+    global t, dt, PxA, PzA, VxA, VzA, StickingA, SlidingA, StictionA, PosFPA, dxA, dvxA, FxA, FzA, Fx_slidingA, Fx_stickingA, test_slideA, test_stickA
+    dt,tsim=np.load("paramaters.npy")
+    t = np.arange(0, tsim + dt, dt)  # Create the time array directly
+    l = len(t)  # Calculate the length based on t
+    PxA=np.zeros((5,l))
+    PzA = np.zeros((5,l))
+    VxA = np.zeros((5,l))
+    VzA = np.zeros((5,l))
+    StickingA = np.zeros((5,l))
+    SlidingA = np.zeros((5,l))
+    StictionA = np.zeros((5,l))
+    PosFPA = np.zeros((5,l))
+    dxA = np.zeros((5,l))
+    dvxA = np.zeros((5,l))
+    FxA = np.zeros((5,l))
+    FzA = np.zeros((5,l))
+    Fx_slidingA = np.zeros((5,l))
+    Fx_stickingA = np.zeros((5,l))
+    test_slideA = np.zeros((5,l))
+    test_stickA = np.zeros((5,l))
+
+    
+def collect(ixF,Px,Pz,Vx,Vz,Sticking,Sliding,Stiction,PosFP,dx,dvx,Fx,Fz,Fx_sliding,Fx_sticking,test_slide,test_stick,tsim):
+    global flag_initiated, t, dt, PxA, PzA, VxA, VzA, StickingA, SlidingA, StictionA, PosFPA, dxA, dvxA, FxA, FzA, Fx_slidingA, Fx_stickingA, test_slideA, test_stickA
+
+    if (flag_initiated==False):
+       initiate()
+       flag_initiated=True
+    ti= int(tsim/dt)
+       
+    PxA[ixF,ti]=Px
+    PzA[ixF, ti] = Pz
+    VxA[ixF, ti] = Vx
+    VzA[ixF, ti] = Vz
+    StickingA[ixF, ti] = Sticking
+    SlidingA[ixF, ti] = Sliding
+    StictionA[ixF, ti] = Stiction
+    PosFPA[ixF, ti] = PosFP
+    dxA[ixF, ti] = dx
+    dvxA[ixF, ti] = dvx
+    FxA[ixF, ti] = Fx
+    FzA[ixF, ti] = Fz
+    Fx_slidingA[ixF, ti] = Fx_sliding
+    Fx_stickingA[ixF, ti] = Fx_sticking
+    test_slideA[ixF, ti] = test_slide
+    test_stickA[ixF, ti] = test_stick
+    
+    
+    
+def show_ext():
+    global t, dt, PxA, PzA, VxA, VzA, StickingA, SlidingA, StictionA, PosFPA, dxA, dvxA, FxA, FzA, Fx_slidingA, Fx_stickingA ,test_slideA, test_stickA
+
+    #name = ["temp", "HeelR", "HeelL", "BallR", "BallL"]
+    name = ["temp", "BallR", "HeelL", "HeelR", "BallL"]
+    
+    variables = [PxA, PzA, VxA, VzA, StickingA, SlidingA, StictionA, PosFPA, dxA, dvxA, FxA, FzA, Fx_slidingA, Fx_stickingA, test_slideA, test_stickA]
+    variable_names = ["Px", "Pz", "Vx", "Vz", "Sticking", "Sliding", "Stiction", "PosFP", "dx", "dvx", "Fx", "Fz", "Fx_sliding", "Fx_sticking", "test_slide", "test_stick"]
+
+    for i in range(1, 5):
+        """ 
+        id = "plot/" + name[i]
+        plt.plot(variables[i], label=name[i])
+        plt.legend()
+        plt.title(id)
+        plt.savefig(id)
+        plt.close()
+        print(id) 
+        """
+
+        for j in range(len(variables)):
+            id = "plot/"+ name[i] + "/" + name[i] + " " + variable_names[j]
+            plt.figure(figsize=(12, 6))
+            plt.plot(t, variables[j][i], label=variable_names[j])
+            plt.legend()
+            plt.grid()
+            plt.title(id)
+            plt.savefig(id)
+            plt.close()
+            
+            np.save("numpy_archive/"+variable_names[j],variables[j])
+
+
+
+def replay_show_ext():
+    dt,tsim=np.load("paramaters.npy")
+    t = np.arange(0, tsim + dt, dt)  # Create the time array directly
+    
+    variable_names = ["Px", "Pz", "Vx", "Vz", "Sticking", "Sliding", "Stiction", "PosFP", "dx", "dvx", "Fx", "Fz", "Fx_sliding", "Fx_sticking", "test_slide", "test_stick"]
+    variables = [ np.load(os.getcwd()+"/numpy_archive/"+var+".npy") for var in variable_names]
+    #name = ["temp", "HeelR", "HeelL", "BallR", "BallL"]
+    name = ["temp", "BallR", "HeelL", "HeelR", "BallL"]
+
+    for i in range(1, 5):
+        """ 
+        id = "plot/" + name[i]
+        plt.plot(variables[i], label=name[i])
+        plt.legend()
+        plt.title(id)
+        plt.savefig(id)
+        plt.close()
+        print(id) 
+        """
+
+        for j in range(len(variables)):
+            id = "plot/"+ name[i] + "/" + name[i] + " " + variable_names[j]
+            plt.figure(figsize=(12, 6))
+            plt.scatter(t, variables[j][i], label=variable_names[j])
+            delta=0.00035
+            plt.axvline(x=delta+0.163742, color='red', linestyle='--')
+            plt.axvline(x=delta+0.16445, color='red', linestyle='--')
+            plt.axvline(x=delta+0.16585, color='red', linestyle='--')
+            plt.xlim([0.1630,0.1690])
+            #plt.xlim([0.13,0.23])
+            #plt.ylim([-0.001,0.001])
+            plt.grid()
+            plt.legend()
+            plt.title(id)
+            plt.savefig(id)
+            plt.close()
+            
+            if(variable_names[j]=="temp"):
+                id = "plot/"+ name[i] + "/" + name[i] + " " + variable_names[j]+"zommed"
+                plt.plot(t, variables[j][i], label=variable_names[j])
+                plt.xlim([0.15,0.25])
+                plt.ylim([-0.1,0.1])
+                plt.grid()
+                plt.legend()
+                plt.title(id)
+                plt.savefig(id)
+                plt.close()
+                
+            
+            
+    
+    
+    
+    
+if __name__ == "__main__":
+    replay_show_ext()
+    #TestworkR.runtest(250e-7,0.3,c=False)    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+""" 
+
+
 BallL=np.zeros((0))
 BallR=np.zeros((0))
 HeelL=np.zeros((0))
@@ -30,7 +216,9 @@ Px=np.zeros(0)
 
 #HeelL_Px=np.zeros((0,2))
 
-def initiate():
+
+
+def initiate_temp():
     global dt, t, BallL, BallR, HeelL, HeelR, BallR_stiction, Px
     dt,tsim=np.load("paramaters.npy")
     t = np.arange(0, tsim + dt, dt)  # Create the time array directly
@@ -91,10 +279,13 @@ def collect_Px(PxF,tsim):
     ti= int(tsim/dt)
     
     Px[:,ti]=PxF
-
-
-        
     
+
+
+
+
+
+
    
 
 def show_ext():
@@ -337,11 +528,10 @@ def show_ext():
     np.save("numpy_archive/HeelR", HeelR)
 
 
+"""
 
-if __name__ == "__main__":
-    TestworkR.runtest(250e-7,1.8,c=False)    
     
-    """ initiate()
+""" initiate()
     BallR_stiction = np.load(os.getcwd()+"/numpy_archive/stiction_BallR.npy")
     print(BallR_stiction)
     
@@ -352,6 +542,7 @@ if __name__ == "__main__":
     plt.legend()
     plt.title(id)
     plt.savefig(id)
-    plt.close()  """
+plt.close()  
+"""
 
-    
+     

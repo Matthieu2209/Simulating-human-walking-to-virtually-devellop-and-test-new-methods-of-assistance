@@ -99,7 +99,7 @@ def runtest(dt0,tf,c=False):
     
 
     
-    mbs_dirdyn.set_options(dt0=dt0, tf=tf, save2file=1) # 96
+    mbs_dirdyn.set_options(dt0=dt0, tf=tf, save2file=1)#, integrator="Bader") # 96
     start_time = time.time()
 
     results = mbs_dirdyn.run()
@@ -151,10 +151,7 @@ def runtest(dt0,tf,c=False):
 #0.02: 17s
 
 if __name__ == "__main__":
-    
-    for tf in [0.5]:#,0.01,0.1]:
-        print('starting tf' +str(tf))
-        runtest(250e-6,tf)
+    runtest(250e-7,0.3)
     
 
 """ 

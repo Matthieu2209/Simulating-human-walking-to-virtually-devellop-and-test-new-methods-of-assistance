@@ -961,7 +961,7 @@ def user_JointForces(mbs_data, tsim):
 
     
     #gait_graph.collect(mbs_data)
-    if(np.load("paramaters.npy")[1]==tsim-dt and flag_graph):
+    if(np.load("paramaters.npy")[1]==tsim-dt*10 and flag_graph):
         gait_graph.show_ext()
         flag_graph=False 
         
